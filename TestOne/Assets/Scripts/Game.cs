@@ -767,7 +767,7 @@ namespace Assets.Scripts
                     }
 
                     SelectedPiece.CurrentDirection = validMove.Dir;
-                    DirectionLabel.text = SelectedPiece.CurrentDirection.ToString();
+                    //DirectionLabel.text = SelectedPiece.CurrentDirection.ToString();
                     square.GetComponent<GameSquare>().CanMoveTo = false;
 
                     //SelectedPiece.MovesRemaining--;

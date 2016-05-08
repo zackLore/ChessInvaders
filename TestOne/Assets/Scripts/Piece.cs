@@ -282,7 +282,7 @@ namespace Assets.Scripts
             HasChangedDirection = false;
             PreviewMoves.Clear();
             CurrentDirection = Move.Direction.NONE;
-            gameRef.DirectionLabel.text = CurrentDirection.ToString();
+            //gameRef.DirectionLabel.text = CurrentDirection.ToString();
             MovesRemaining = CurrentMoveCount;
             LastMove = null;
         }
@@ -422,7 +422,7 @@ namespace Assets.Scripts
             CurrentMoveCount = 0;
             HasChangedDirection = false;
             CurrentDirection = Move.Direction.NONE;
-            gameRef.DirectionLabel.text = CurrentDirection.ToString();
+            //gameRef.DirectionLabel.text = CurrentDirection.ToString();
             MovesRemaining = CurrentMoveCount;
         }
 
