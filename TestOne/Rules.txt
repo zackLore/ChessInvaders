@@ -1,0 +1,64 @@
+﻿Okay… so the game is played on a chess board.  Dice rolls are used for both movement and battles.  You win the game by capturing the other player’s King, 
+just like in chess.  
+
+In any battle, the attacker rolls first, then the defender.  The higher dice roll wins.  If both players roll the same number, the defending piece wins.
+
+
+(More complicated additional rule that I added but is not absolutely necessary:  In the event that an attacking piece rolls a number higher than it’s even 
+possible for the defending piece to beat and the defending piece follows it up by rolling the maximum number they can possibly roll, the defending piece 
+wins a “safety” which forces a do-over of the battle.)
+
+
+FIGHTERS
+Attack: D20
+Defend: D6
+Move:  D6, straight in any direction, can make one change in direction mid-move
+
+DEFENDERS
+Attack:  D6
+Defend:  D20
+Move: D4, straight in any direction
+Special move:  If they are adjacent to both an enemy piece and their own king, they can pick up the enemy piece and feed it to their king.
+
+DRONES:
+Attack: D10
+Defend: D10
+Move:  D6, not diagonal
+Special move: Can transform into a bomb
+
+BOMBS:
+Attack/defense: Any battle involving a Bomb ends in the destruction of both attacker and defender
+move:  D4, can make one change in direction mid-move
+
+(Alternate rules:  You can make the bombs explode bigger.  For instance also taking pieces out around them and not just the one they’re on.  
+There should be some kind of safety against this collateral damage however… a saving throw or a coin toss to see if you survive or die.  
+Games end much more quickly if bomb explosions have extended range.)
+
+QUEEN
+Attack: three D6
+Defend:  three D6
+Move:  Any direction, as far as she wants.
+
+KING:
+Attack: always wins
+Defense: always loses
+Move: 1
+
+I’ll attach art for the original pieces I made.  But there’s no BOMB piece.  When playing the game, we’d simply place a penny on top of the drone to
+ indicate that it’s changed into a bomb.  Maybe when the Drone goes into self-destruct bomb-mode we could indicate that by having it’s colors rotate 
+ through a rainbow spectrum in an old-school arcade game kind of way.  Or maybe green drones flash through a spectrum of green and red drones flash 
+ through a spectrum of red.
+
+ 
+Also, there could be variations on the load-out of the arrangement of your pieces.   King and Queen at least should stay where they are.
+best wishes,
+
+James Kochalka
+
+
+AND:
+Also… we can use the name Glorkian Chess.  PixelJam is cool with it.
+ It would be great to make the game as an iPad app that people could play head-to-head.  Also it should be playable against computer controlled player.
+
+ best wishes,
+ James Kochalka
