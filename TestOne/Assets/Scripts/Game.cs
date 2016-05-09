@@ -52,6 +52,7 @@ namespace Assets.Scripts
 
         public Canvas AttackMenu;
         public Canvas PreviewMenu;
+        public Sprite PlayerImage;
         
         public bool Dragging = false;
         public bool ActionPieceWasPlaced = false;
@@ -137,10 +138,13 @@ namespace Assets.Scripts
 
             var texts = RollMenu.GetComponentsInChildren<Text>();
             rollMenuLabel = texts.Where(x => x.name == "RollMenuLabel").FirstOrDefault();
-            MoveCountLabel = texts.Where(x => x.name == "MoveCountLabel").FirstOrDefault();
+            //MoveCountLabel = texts.Where(x => x.name == "MoveCountLabel").FirstOrDefault();
             DirectionLabel = texts.Where(x => x.name == "DirectionLabel").FirstOrDefault();
 
             RollMenu.gameObject.SetActive(true);
+
+            MoveCountLabel = PreviewMenu.transform.Find("MoveCountLabel").GetComponent<Text>();
+            PlayerImage = PreviewMenu.transform.Find("CurrentPlayerImage").GetComponent<SpriteRenderer>().sprite;
 
             this.Pieces.Clear();
             float height = Square.gameObject.GetComponent<SpriteRenderer>().sprite.rect.height;
