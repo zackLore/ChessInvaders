@@ -159,18 +159,6 @@ namespace Assets.Scripts
         void OnMouseOver()
         {
             DetectClicks();
-            if (DateTime.Now.TimeOfDay - HoverTime > TimeSpan.FromSeconds(HoverStart))
-            {
-                GameRef.ShowPreviewMenu(this);
-            }
-            else
-            {
-                GameRef.HidePreviewMenu();
-            }
-            //if ((DateTime.Now.TimeOfDay - HoverTime).Milliseconds > (100 * DoubleClickTime))
-            //{
-            //    ClickCount = 0;
-            //}
         }
 
         void OnMouseExit()
@@ -194,7 +182,8 @@ namespace Assets.Scripts
                         {
                             this.LastMove = this.CurrentMove;//TODO: Needs to be current location.  Current Move is incorrect for this spot
                             gameRef.MakePieceMove(this);
-                            gameRef.SelectedPiece.Coord = NextMove.Coord;                                        gameRef.CurrentMove = this.CurrentMove;                
+                            gameRef.SelectedPiece.Coord = NextMove.Coord;
+                            gameRef.CurrentMove = this.CurrentMove;                
                         }
                     }
                     else
@@ -282,9 +271,9 @@ namespace Assets.Scripts
             HasChangedDirection = false;
             PreviewMoves.Clear();
             CurrentDirection = Move.Direction.NONE;
-            //gameRef.DirectionLabel.text = CurrentDirection.ToString();
             MovesRemaining = CurrentMoveCount;
             LastMove = null;
+            GameRef.UpdateMoveLabel();
         }
 
         public void GetAvailableMoves()
@@ -716,12 +705,10 @@ namespace Assets.Scripts
                     {
                         GameRef.SelectedPiece = this;
                         this.Selected = true;
-                        Debug.Log("CurrentMoveCount: " + CurrentMoveCount);
                         if (CurrentMoveCount > 0)
                         {
                             ClearValues();
                             GetAvailableMoves();
-                            Debug.Log("Moves Gotten");
                         }
                     }
                 }
@@ -747,14 +734,16 @@ namespace Assets.Scripts
                                 Debug.Log("Moves Gotten");
                             }
                         }
-                        else
+                        else//Deselect Piece
                         {
                             Selected = false;
                             GameRef.SelectedPiece = null;
+                            GameRef.HidePreviewMenu();
                             GameRef.ClearAllHighlights();
                             GameRef.ClearAllMovePieces();
-                            ClearValues();
-                        }
+                            GameRef.DisplayRollButton();
+                            ClearValues();                            
+                        }                        
                     }
                     GameRef.UpdateMoveLabel();
                 }
@@ -764,7 +753,7 @@ namespace Assets.Scripts
                     GameRef.Highlight.transform.position = GameRef.SelectedPiece.transform.position;
                     GameRef.Highlight.SetActive(true);
 
-                    GameRef.RollMenu.gameObject.SetActive(true);
+                    //GameRef.RollMenu.gameObject.SetActive(true);
                     GameRef.rollMenuLabel.text = GameRef.SelectedPiece.PieceType.ToString();
                     GameRef.rollMenuLabel.text += "\n" + GameRef.SelectedPiece.Coord.row + " | " + GameRef.SelectedPiece.Coord.col;
                 }

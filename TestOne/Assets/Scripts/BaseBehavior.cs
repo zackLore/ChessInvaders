@@ -16,7 +16,7 @@ namespace Assets.Scripts
         public int ClickCount = 0;
         public float LongPressTime = 750f;
         //public float ClickTime = 100f;
-        public float DoubleClickTime = 2.5f;
+        public float DoubleClickTime = 1f;
         public float LastClickTime = 0f;
 
         public TimeSpan ClickStartTime = TimeSpan.FromSeconds(0);

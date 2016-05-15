@@ -11,6 +11,16 @@ namespace Assets.Scripts
 {
     public class Game : MonoBehaviour//TODO: Remove duplicate square code, finish implementation of Behaviors
     {
+        public enum ScreenPosition
+        {
+            NONE,
+            CENTER,
+            TOP_LEFT,
+            TOP_RIGHT,
+            BOTTOM_LEFT,
+            BOTTOM_RIGHT
+        }
+
         public Vector3 LastMousePos;
         Move.RelativeDirection RelativeDir = Move.RelativeDirection.NONE;
 
@@ -28,6 +38,10 @@ namespace Assets.Scripts
         public GameObject Highlight;
         public GameObject PlaceHolder;
         public GameObject MovePiece;
+
+        //** References to allow buttons to trigger movement and attacks
+        public GameObject CurrentMovePiece;
+        public GameObject CurrentAttackPiece;
 
         private float SquareHeight;
         private float SquareWidth;
@@ -51,7 +65,13 @@ namespace Assets.Scripts
         public Image rollMenuBackground;
 
         public Canvas AttackMenu;
+
+        //** Preview Menu References
         public Canvas PreviewMenu;
+        public Button AttackButton;
+        public Button MoveButton;
+        public Button RollButton;
+        public ScreenPosition PreviewMenuScreenPosition = ScreenPosition.NONE;
         public Sprite PlayerImage;
         
         public bool Dragging = false;
@@ -141,7 +161,7 @@ namespace Assets.Scripts
             //MoveCountLabel = texts.Where(x => x.name == "MoveCountLabel").FirstOrDefault();
             DirectionLabel = texts.Where(x => x.name == "DirectionLabel").FirstOrDefault();
 
-            RollMenu.gameObject.SetActive(true);
+            //RollMenu.gameObject.SetActive(true);
 
             MoveCountLabel = PreviewMenu.transform.Find("MoveCountLabel").GetComponent<Text>();
             PlayerImage = PreviewMenu.transform.Find("CurrentPlayerImage").GetComponent<SpriteRenderer>().sprite;
@@ -232,6 +252,26 @@ namespace Assets.Scripts
             
             Square.SetActive(false);//TODO: Use prefab instead of set game objects
             RollMenu.transform.Find("RollMenuBackground").GetComponent<Image>().color = CurrentTurn.PlayerNumber == 1 ? UnityEngine.Color.green : UnityEngine.Color.magenta;
+
+            var buttons = PreviewMenu.GetComponentsInChildren<Button>();
+            foreach (var button in buttons)
+            {
+                if (button.name == "AttackButton")
+                {
+                    AttackButton = button;
+                    AttackButton.gameObject.SetActive(false);
+                }
+                else if(button.name == "MoveButton")
+                {
+                    MoveButton = button;
+                    MoveButton.gameObject.SetActive(false);
+                }
+                else if (button.name == "RollButton")
+                {
+                    RollButton = button;
+                    RollButton.gameObject.SetActive(true);
+                }
+            }
         }
 
         // Update is called once per frame
@@ -249,10 +289,33 @@ namespace Assets.Scripts
             GetDragDirectionFromSelectedPiece();
             LastMousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-            if (Dragging && SelectedPiece != null)
+            if (SelectedPiece != null && !SelectedPiece.Moving && !AttackMode)
             {
-                //SelectedPiece.ClickCount = 0;
+                if (!PreviewMenu.gameObject.activeInHierarchy)
+                {
+                    ShowPreviewMenu(SelectedPiece, GetSelectedPieceScreenPosition());
+                }
+                else
+                {
+                    if (SelectedPiece.PreviewMoves.Count > 0)
+                    {
+                        ScreenPosition PreviewPosition = GetScreenPosition(SelectedPiece.PreviewMoves.Peek().Pos);
+                        Debug.Log("PreviewPos: " + PreviewPosition + " | MenuPos: " + PreviewMenuScreenPosition);
+                        if (PreviewPosition == PreviewMenuScreenPosition)
+                        {
+                            MovePreviewWindowKiddieCorner(PreviewPosition);
+                        }
+                    }
+                }
             }
+            else if (SelectedPiece == null)
+            {
+                PreviewMenu.gameObject.SetActive(false);
+            }
+            //if (Dragging && SelectedPiece != null)
+            //{
+                //SelectedPiece.ClickCount = 0;
+            //}
             
             //DetectClicks(false);
 
@@ -265,6 +328,16 @@ namespace Assets.Scripts
         // ****************************************************
         // Public Methods
         // ****************************************************
+        public void BeginAttack()
+        {
+            CurrentAttackPiece.GetComponent<AttackSquare>().DoubleClick();
+        }
+
+        public void BeginMove()
+        {
+            CurrentMovePiece.GetComponent<MovePiece>().DoubleClick();
+        }
+
         public bool CheckForAttackSquare(GameObject square)
         {
             bool found = false;
@@ -335,6 +408,36 @@ namespace Assets.Scripts
             (AttackMenu.transform.Find("AttackPlayerTwoValue").gameObject).GetComponent<Text>().text = "0";
         }
 
+        /// <summary>
+        /// Displays the Attack Button on the preview menu and hides the others
+        /// </summary>
+        public void DisplayAttackButton()
+        {
+            RollButton.gameObject.SetActive(false);
+            MoveButton.gameObject.SetActive(false);
+            AttackButton.gameObject.SetActive(true);
+        }
+
+        /// <summary>
+        /// Displays the Attack Button on the preview menu and hides the others
+        /// </summary>
+        public void DisplayMoveButton()
+        {
+            RollButton.gameObject.SetActive(false);
+            MoveButton.gameObject.SetActive(true);
+            AttackButton.gameObject.SetActive(false);
+        }
+
+        /// <summary>
+        /// Displays the Attack Button on the preview menu and hides the others
+        /// </summary>
+        public void DisplayRollButton()
+        {
+            RollButton.gameObject.SetActive(true);
+            MoveButton.gameObject.SetActive(false);
+            AttackButton.gameObject.SetActive(false);
+        }
+
         public void GetDragDirectionFromLastPreviewMove()
         {
             if (SelectedPiece == null){ return; }
@@ -392,6 +495,72 @@ namespace Assets.Scripts
             {
                 RelativeDir = Move.RelativeDirection.NONE;
             }
+        }
+
+        public ScreenPosition GetScreenPosition(Vector3 pos)
+        {
+            bool isTop = false;
+            bool isLeft = false;
+
+            ScreenPosition sp = ScreenPosition.NONE;
+
+            if (pos.x == 0 && pos.y == 0) { return ScreenPosition.CENTER; }
+
+            isTop = pos.y > 0 ? true : false;
+            isLeft = pos.x > 0 ? false : true;
+
+            if (isTop && isLeft)
+            {
+                sp = ScreenPosition.TOP_LEFT;
+            }
+            else if (isTop && !isLeft)
+            {
+                sp = ScreenPosition.TOP_RIGHT;
+            }
+            else if (!isTop && isLeft)
+            {
+                sp = ScreenPosition.BOTTOM_LEFT;
+            }
+            else
+            {
+                sp = ScreenPosition.BOTTOM_RIGHT;
+            }
+
+            return sp;
+        }
+
+        public ScreenPosition GetSelectedPieceScreenPosition()
+        {
+            if (SelectedPiece == null) { return ScreenPosition.NONE; }
+            bool isTop = false;
+            bool isLeft = false;
+
+            ScreenPosition sp = ScreenPosition.NONE;
+            Vector3 pos = SelectedPiece.transform.position;
+
+            if (pos.x == 0 && pos.y == 0) { return ScreenPosition.CENTER; }
+
+            isTop = pos.y > 0 ? true : false;
+            isLeft = pos.x > 0 ? false : true;
+
+            if (isTop && isLeft)
+            {
+                sp = ScreenPosition.TOP_LEFT;
+            }
+            else if (isTop && !isLeft)
+            {
+                sp = ScreenPosition.TOP_RIGHT;
+            }
+            else if (!isTop && isLeft)
+            {
+                sp = ScreenPosition.BOTTOM_LEFT;
+            }
+            else
+            {
+                sp = ScreenPosition.BOTTOM_RIGHT;
+            }
+               
+            return sp;
         }
 
         public Move GetValidMove(Move move)
@@ -566,6 +735,90 @@ namespace Assets.Scripts
             //    SelectedPiece.HasChangedDirection = false;
             //}
         }
+       
+        /// <summary>
+        /// Moves preview window out of the way of the player to the left or right
+        /// </summary>
+        /// <param name="position">position of selected piece</param>
+        public void MovePreviewWindow(ScreenPosition position)
+        {
+            float sw = Screen.width;
+            float sh = Screen.height;
+            float halfW = sw / 2;
+            float halfH = sh / 2;
+            float qtrW = halfW / 2;
+            float qtrH = halfH / 2;
+            
+            switch (position)
+            {
+                case ScreenPosition.TOP_LEFT:
+                    PreviewMenuScreenPosition = ScreenPosition.TOP_RIGHT;
+                    PreviewMenu.transform.position = Camera.main.ScreenToWorldPoint( new Vector3(halfW + qtrW, halfH + qtrH, 0));
+                    PreviewMenu.transform.position += new Vector3(0, 0, 15);
+                    break;
+                case ScreenPosition.TOP_RIGHT:
+                    PreviewMenuScreenPosition = ScreenPosition.TOP_LEFT;
+                    PreviewMenu.transform.position = Camera.main.ScreenToWorldPoint(new Vector3(halfW - qtrW, halfH + qtrH, 0));
+                    PreviewMenu.transform.position += new Vector3(0, 0, 15);
+                    break;
+                case ScreenPosition.BOTTOM_LEFT:
+                case ScreenPosition.CENTER:
+                    PreviewMenuScreenPosition = ScreenPosition.BOTTOM_RIGHT;
+                    PreviewMenu.transform.position = Camera.main.ScreenToWorldPoint(new Vector3(halfW + qtrW, halfH - qtrH, 0));
+                    PreviewMenu.transform.position += new Vector3(0, 0, 15);
+                    break;
+                case ScreenPosition.BOTTOM_RIGHT:
+                    PreviewMenuScreenPosition = ScreenPosition.BOTTOM_LEFT;
+                    PreviewMenu.transform.position = Camera.main.ScreenToWorldPoint(new Vector3(halfW - qtrW, halfH - qtrH, 0));
+                    PreviewMenu.transform.position += new Vector3(0, 0, 15);
+                    break;
+                case ScreenPosition.NONE:
+                    PreviewMenu.transform.position = Vector3.zero;
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Moves preview window out of the way of the player to the left or right
+        /// </summary>
+        /// <param name="position">position of selected piece</param>
+        public void MovePreviewWindowKiddieCorner(ScreenPosition position)
+        {
+            float sw = Screen.width;
+            float sh = Screen.height;
+            float halfW = sw / 2;
+            float halfH = sh / 2;
+            float qtrW = halfW / 2;
+            float qtrH = halfH / 2;
+
+            switch (position)
+            {
+                case ScreenPosition.TOP_LEFT:
+                    PreviewMenuScreenPosition = ScreenPosition.BOTTOM_RIGHT;
+                    PreviewMenu.transform.position = Camera.main.ScreenToWorldPoint(new Vector3(halfW + qtrW, halfH - qtrH, 0));
+                    PreviewMenu.transform.position += new Vector3(0, 0, 15);
+                    break;
+                case ScreenPosition.TOP_RIGHT:
+                    PreviewMenuScreenPosition = ScreenPosition.BOTTOM_LEFT;
+                    PreviewMenu.transform.position = Camera.main.ScreenToWorldPoint(new Vector3(halfW - qtrW, halfH - qtrH, 0));
+                    PreviewMenu.transform.position += new Vector3(0, 0, 15);
+                    break;
+                case ScreenPosition.BOTTOM_LEFT:
+                case ScreenPosition.CENTER:
+                    PreviewMenuScreenPosition = ScreenPosition.TOP_RIGHT;
+                    PreviewMenu.transform.position = Camera.main.ScreenToWorldPoint(new Vector3(halfW + qtrW, halfH + qtrH, 0));
+                    PreviewMenu.transform.position += new Vector3(0, 0, 15);
+                    break;
+                case ScreenPosition.BOTTOM_RIGHT:
+                    PreviewMenuScreenPosition = ScreenPosition.TOP_LEFT;
+                    PreviewMenu.transform.position = Camera.main.ScreenToWorldPoint(new Vector3(halfW - qtrW, halfH + qtrH, 0));
+                    PreviewMenu.transform.position += new Vector3(0, 0, 15);
+                    break;
+                case ScreenPosition.NONE:
+                    PreviewMenu.transform.position = Vector3.zero;
+                    break;
+            }
+        }
 
         public void MoveToSquare(Piece piece, Move move)
         {
@@ -596,6 +849,9 @@ namespace Assets.Scripts
             attackSquare.GetComponent<AttackSquare>().CurrentMove = move;
             LastMove = move;
             ActionPieceWasPlaced = true;
+
+            CurrentAttackPiece = attackSquare;
+            DisplayAttackButton();
         }
 
         public void PlaceMovePiece(GameObject square, Move move)
@@ -613,6 +869,9 @@ namespace Assets.Scripts
             moveHolder.GetComponent<MovePiece>().CurrentMove = move;
             LastMove = move;
             ActionPieceWasPlaced = true;
+
+            CurrentMovePiece = moveHolder;
+            DisplayMoveButton();
         }
 
         public void PlacePreviewPiece(GameObject square, Move move)
@@ -808,6 +1067,9 @@ namespace Assets.Scripts
                 try
                 {
                     if (SelectedPiece == null || SelectedPiece.CurrentMove == null || SelectedPiece.CurrentMove.Attacker == null) { return; }
+
+                    PreviewMenu.gameObject.SetActive(false);
+
                     //Clear out remaining Attack Squares
                     var attackSquares = this.transform.GetComponentsInChildren<AttackSquare>();
                     if (attackSquares != null)
@@ -839,17 +1101,13 @@ namespace Assets.Scripts
                 }
                 catch (Exception)
                 {
-                    //Debug.Log("AttackMenu component was null");
-                    throw;
+                    Debug.Log("AttackMenu component was null");
+                    //throw;
                 }
-            }
-            else
-            {
-                //Debug.Log("Attack Menu is null.");
             }
         }
 
-        public void ShowPreviewMenu(Piece piece)
+        public void ShowPreviewMenu(Piece piece, ScreenPosition position)
         {
             PreviewMenu.gameObject.SetActive(true);
 
@@ -873,6 +1131,12 @@ namespace Assets.Scripts
 
             var txtMoveCount = PreviewMenu.transform.Find("txtMoveDiceCount");
             txtMoveCount.GetComponent<Text>().text = piece.MoveDice.DiceCollection.Count.ToString();
+
+            PreviewMenu.transform.Find("CurrentPlayerImage").GetComponent<SpriteRenderer>().sprite = SelectedPiece.GetComponent<SpriteRenderer>().sprite;
+            //PlayerImage = SelectedPiece.GetComponent<SpriteRenderer>().sprite;
+            Debug.Log("Displayed Image");
+
+            MovePreviewWindow(position);
 
             //var rect = PreviewMenu.GetComponent<RectTransform>();
             //Vector3 newPos = piece.transform.position + new Vector3((rect.rect.width / 2) + 40, -((rect.rect.height / 2) + 40), 0);
@@ -901,6 +1165,7 @@ namespace Assets.Scripts
             }
 
             RollMenu.transform.Find("RollMenuBackground").GetComponent<Image>().color = CurrentTurn.PlayerNumber == 1 ? UnityEngine.Color.green : UnityEngine.Color.magenta;
+            DisplayRollButton();
         }
         
         public Stack<Move> SwapMoves(Stack<Move> moves)
