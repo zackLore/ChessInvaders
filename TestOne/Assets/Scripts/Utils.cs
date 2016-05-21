@@ -235,6 +235,17 @@ namespace Assets.Scripts
             return co;
         }
 
+        public static GameObject FindGameObject(Vector3 pos)
+        {
+            GameObject temp = null;
+            Ray ray = Camera.main.ScreenPointToRay(Camera.main.WorldToScreenPoint(pos));
+            RaycastHit hit;
+
+            Physics.Raycast(ray, out hit);
+
+            return temp;
+        }
+
         // ****************************************************
         // Degug Helpers
         // ****************************************************

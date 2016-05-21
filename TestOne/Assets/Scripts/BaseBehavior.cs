@@ -16,7 +16,7 @@ namespace Assets.Scripts
         public int ClickCount = 0;
         public float LongPressTime = 750f;
         //public float ClickTime = 100f;
-        public float DoubleClickTime = 1f;
+        public float DoubleClickTime = .5f;
         public float LastClickTime = 0f;
 
         public TimeSpan ClickStartTime = TimeSpan.FromSeconds(0);
@@ -106,7 +106,6 @@ namespace Assets.Scripts
                 {
                     if (Time.time - LastClickTime <= DoubleClickTime && ClickCount == 2 && detectDoubleClick)
                     {
-                        Debug.Log("DoubleClick | " + (click == null));
                         if (click != null)
                         {
                             StopCoroutine(click);
@@ -118,12 +117,10 @@ namespace Assets.Scripts
                     }
                     else
                     {
-                        Debug.Log("LeftClick | " + (click == null));
                         if (click == null)
                         {
                             click = StartCoroutine(TriggerSingleClick());
                             EndPressTime();
-                            Debug.Log("StartCoroutine | " + DoubleClickTime + ": " + (click == null));
                         }
                     }
                 }
@@ -146,7 +143,7 @@ namespace Assets.Scripts
         public void InitClickTimes()
         {
             LongPressTime = 750f;
-            DoubleClickTime = .3f;
+            DoubleClickTime = .2f;
             LastClickTime = Time.time;
         }
 
@@ -162,10 +159,8 @@ namespace Assets.Scripts
 
         public void RemoveMove()
         {
-            Debug.Log("In Remove Move");
             if (GameRef.SelectedPiece.PreviewMoveExists(CurrentMove))
             {
-                Debug.Log("Move Exists");
                 //Remove moves up to CurrentMove
                 while (GameRef.SelectedPiece.PreviewMoves.Count > 0)
                 {
@@ -180,8 +175,7 @@ namespace Assets.Scripts
 
                     if (temp.Coord.row == CurrentMove.Coord.row &&
                         temp.Coord.col == CurrentMove.Coord.col)//Destry Self
-                    {
-                        Debug.Log("Match found. PreviewMoves.Count: " + GameRef.SelectedPiece.PreviewMoves.Count);                        
+                    {                       
                         GameRef.Squares[temp.Coord.row][temp.Coord.col].GetComponent<GameSquare>().CanRemove = false;
                         GameRef.SelectedPiece.PreviewCoord = CurrentMove.FromCoord;
                         GameRef.SelectedPiece.CurrentDirection = CurrentMove.Dir;
@@ -192,7 +186,6 @@ namespace Assets.Scripts
                     }
                     if (temp.Owner != null)//Destroy Preview Object
                     {
-                        Debug.Log("Destroy Preview Object: " + temp.Coord.row + " | " + temp.Coord.col);
                         GameObject.Destroy(temp.Owner.gameObject);
                     }                    
                 }
@@ -206,10 +199,8 @@ namespace Assets.Scripts
         public IEnumerator TriggerSingleClick()
         {
             yield return new WaitForSeconds(DoubleClickTime);
-            Debug.Log("Single Click Fired");
             ClickCount = 0;
             LeftClickUp();
-            Debug.Log("ClickCount: " + ClickCount);
             click = null;
         }
 

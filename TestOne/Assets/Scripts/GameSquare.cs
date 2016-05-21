@@ -50,7 +50,7 @@ namespace Assets.Scripts
         public override void LeftClickUp()
         {
             //Debug.Log(this + " Left Click Up : " + Camera.main.ScreenToWorldPoint(Input.mousePosition));
-            if (GameRef.SelectedPiece.Moving) { return; }//ignore clicks while moving
+            if (GameRef.SelectedPiece != null && GameRef.SelectedPiece.Moving) { return; }//ignore clicks while moving
             GameRef.SetMovePiece();
         }
 

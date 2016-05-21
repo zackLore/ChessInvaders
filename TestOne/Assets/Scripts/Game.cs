@@ -72,7 +72,9 @@ namespace Assets.Scripts
         public Button MoveButton;
         public Button RollButton;
         public ScreenPosition PreviewMenuScreenPosition = ScreenPosition.NONE;
-        public Sprite PlayerImage;
+
+        //** Win Menu
+        public Canvas WinMenu;   
         
         public bool Dragging = false;
         public bool ActionPieceWasPlaced = false;
@@ -89,6 +91,10 @@ namespace Assets.Scripts
                     MoveMode = false;
                     SelectMode = false;
                 }
+                else
+                {
+                    _attackMode = value;
+                }
             }
         }
         private bool _moveMode;
@@ -103,6 +109,10 @@ namespace Assets.Scripts
                     SelectMode = false;
                     AttackMode = false;
                 }
+                else
+                {
+                    _moveMode = value;
+                }
             }
         }
         private bool _selectMode;
@@ -116,6 +126,10 @@ namespace Assets.Scripts
                     _selectMode = value;
                     MoveMode = false;
                     AttackMode = false;
+                }
+                else
+                {
+                    _selectMode = value;
                 }
             }
         }
@@ -164,7 +178,6 @@ namespace Assets.Scripts
             //RollMenu.gameObject.SetActive(true);
 
             MoveCountLabel = PreviewMenu.transform.Find("MoveCountLabel").GetComponent<Text>();
-            PlayerImage = PreviewMenu.transform.Find("CurrentPlayerImage").GetComponent<SpriteRenderer>().sprite;
 
             this.Pieces.Clear();
             float height = Square.gameObject.GetComponent<SpriteRenderer>().sprite.rect.height;
@@ -277,6 +290,8 @@ namespace Assets.Scripts
         // Update is called once per frame
         void Update()
         {
+            if (SelectedPiece != null && SelectedPiece.Moving) { return; }
+
             if (Input.GetMouseButtonDown(0) || Input.touchCount > 0 && Input.touches[0].phase == TouchPhase.Began)
             {
                 Dragging = true;
@@ -288,19 +303,18 @@ namespace Assets.Scripts
 
             GetDragDirectionFromSelectedPiece();
             LastMousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-
+            
             if (SelectedPiece != null && !SelectedPiece.Moving && !AttackMode)
             {
-                if (!PreviewMenu.gameObject.activeInHierarchy)
+                if (!PreviewMenu.gameObject.activeInHierarchy)// Show the Preview Menu
                 {
                     ShowPreviewMenu(SelectedPiece, GetSelectedPieceScreenPosition());
                 }
                 else
                 {
-                    if (SelectedPiece.PreviewMoves.Count > 0)
+                    if (SelectedPiece.PreviewMoves.Count > 0 && (Dragging))
                     {
                         ScreenPosition PreviewPosition = GetScreenPosition(SelectedPiece.PreviewMoves.Peek().Pos);
-                        Debug.Log("PreviewPos: " + PreviewPosition + " | MenuPos: " + PreviewMenuScreenPosition);
                         if (PreviewPosition == PreviewMenuScreenPosition)
                         {
                             MovePreviewWindowKiddieCorner(PreviewPosition);
@@ -312,12 +326,6 @@ namespace Assets.Scripts
             {
                 PreviewMenu.gameObject.SetActive(false);
             }
-            //if (Dragging && SelectedPiece != null)
-            //{
-                //SelectedPiece.ClickCount = 0;
-            //}
-            
-            //DetectClicks(false);
 
             if (MoveMode && Dragging)
             {
@@ -397,6 +405,14 @@ namespace Assets.Scripts
 
         public void CompleteAttack()
         {
+            //** Check for Win/Loss
+            if (BattleLoser.PieceType == Piece.TypeOfPiece.King)
+            {
+                //Show Win Screen
+                WinMenu.transform.Find("PlayerLabel").GetComponent<Text>().text = "Player " + CurrentTurn.PlayerNumber;
+                WinMenu.gameObject.SetActive(true);
+            }
+
             var p = SelectedPiece;
             p.Moving = false;
             SwapTurns();
@@ -592,7 +608,7 @@ namespace Assets.Scripts
                 {
                     GameObject square = null;
                     //Check Direction - if away, add, if towards, remove
-                    if (RelativeDir == Move.RelativeDirection.AWAY && !ActionPieceWasPlaced)
+                    if (RelativeDir == Move.RelativeDirection.AWAY && (!ActionPieceWasPlaced || SelectedPiece.PieceType == Piece.TypeOfPiece.Queen))
                     {                        
                         SetMovePiece();                        
                     }
@@ -608,29 +624,29 @@ namespace Assets.Scripts
                                 //Limit movement to middle of spot
                                 Vector3 diff = Camera.main.ScreenToWorldPoint(Input.mousePosition) - square.transform.position;
                                 float centerSize = HalfWidth / 2;
-                                //Debug.Log("Center Size: " + centerSize + " HalfWidth: " + HalfWidth + " | x: " + diff.x + " y: " + diff.y);
 
                                 if (Mathf.Abs(diff.x) < centerSize &&
                                     Mathf.Abs(diff.y) < centerSize ) { return; }
 
                                 try
                                 {
+                                    Debug.Log("MoveBack: Check Squares.");
                                     if (SquareContainsPreviewPiece(square))
                                     {
-                                        MoveBackOne(square);
                                         square.transform.GetComponentInChildren<PreviewPiece>().RemoveMove();
+                                        MoveBackOne(square);
                                     }
                                     else if (SquareContainsEnemyPiece(square))
                                     {
-                                        MoveBackOne(square);
                                         ActionPieceWasPlaced = false;
                                         square.transform.GetComponentInChildren<AttackSquare>().RemoveMove();
+                                        MoveBackOne(square);
                                     }
                                     else if (SquareContainsMovePiece(square))
                                     {
-                                        MoveBackOne(square);
                                         ActionPieceWasPlaced = false;
                                         square.transform.GetComponentInChildren<MovePiece>().RemoveMove();
+                                        MoveBackOne(square);
                                     }
                                 }
                                 catch (Exception ex)
@@ -718,22 +734,25 @@ namespace Assets.Scripts
         {
             square.GetComponent<GameSquare>().CanMoveTo = true;//reset the square
             square.GetComponent<GameSquare>().CanRemove = false;
-
-            //if (SelectedPiece.MovesRemaining <= SelectedPiece.CurrentMoveCount)
-            //{
-            //    Debug.Log(SelectedPiece.MovesRemaining + " <= " + SelectedPiece.CurrentMoveCount);
-            //    UpdateMoveLabel();
-            //    if (SelectedPiece.CurrentDirection != LastMove.Dir && SelectedPiece.HasChangedDirection)
-            //    {
-            //        SelectedPiece.HasChangedDirection = false;
-            //    }
-            //    SelectedPiece.CurrentDirection = LastMove.Dir;
-            //}
-            //else
-            //{
-            //    Debug.Log(SelectedPiece.MovesRemaining + " == " + SelectedPiece.CurrentMoveCount);
-            //    SelectedPiece.HasChangedDirection = false;
-            //}
+            Debug.Log("MoveBackOne...");
+            //** Remove the Current Move or Attack if they exist
+            CurrentAttackPiece = null;//There is only ever one attack piece placed to remove it if it exists
+            CurrentMovePiece = null;//Remove move piece and re-set if appropriate
+            if (SelectedPiece.PieceType == Piece.TypeOfPiece.Queen)
+            {
+                int previewMoveCount = SelectedPiece.PreviewMoves.Count;
+                if (previewMoveCount > 0)
+                {
+                    Structs.Coordinate coord = SelectedPiece.PreviewMoves.ElementAt(0).Coord;
+                    Debug.Log("preview count: " + previewMoveCount + "Coordinate: " + coord.row + " | " + coord.col);
+                    //var test = square.GetComponentInChildren<MovePiece>();
+                    var test = Squares[coord.row][coord.col].GetComponentInChildren<MovePiece>();
+                    Debug.Log("Test: " + test);
+                    //CurrentMovePiece = square.GetComponentInChildren<MovePiece>().gameObject;
+                    CurrentMovePiece = test.gameObject;
+                    Debug.Log("CurrentMovePiece: " + CurrentAttackPiece );//TODO: NOT DONE! Not setting Current Move Piece
+                }
+            }            
         }
        
         /// <summary>
@@ -948,7 +967,7 @@ namespace Assets.Scripts
         {
             GameObject square = null;
             if (SelectedPiece.MovesRemaining > 0 || SelectedPiece.PieceType == Piece.TypeOfPiece.Queen)
-            {
+            {                
                 //Reset direction
                 if (SelectedPiece.MovesRemaining == SelectedPiece.CurrentMoveCount)
                 {
@@ -990,32 +1009,12 @@ namespace Assets.Scripts
                     SelectedPiece.CurrentMove = validMove;
 
                     //Set Move Dot or Attack Dot
-                    //if (SelectedPiece.MovesRemaining == 1 || SelectedPiece.PieceType == Piece.TypeOfPiece.Queen)
-                    //{
-                    //    if (SquareContainsEnemyPiece(square))
-                    //    {
-                    //        Debug.Log("Contains Enemy Piece");
-                    //        PlaceAttackPiece(square, validMove);
-                    //    }
-                    //    else if (!SquareContainsPreviewPiece(square))
-                    //    {
-                    //        Debug.Log("Contains No Enemy Piece");
-                    //        PlaceMovePiece(square, validMove);
-                    //    }
-                    //}
-                    //else if (SelectedPiece.MovesRemaining > 1)
-                    //{
-                    //    PlacePreviewPiece(square, validMove);
-                    //}
-
                     if (SquareContainsEnemyPiece(square))
                     {
-                        //Debug.Log("Contains Enemy Piece");
                         PlaceAttackPiece(square, validMove);
                     }
-                    else if (!SquareContainsPreviewPiece(square) && SelectedPiece.MovesRemaining == 1 || SelectedPiece.PieceType == Piece.TypeOfPiece.Queen)
+                    else if (!SquareContainsPreviewPiece(square) && (SelectedPiece.MovesRemaining == 1 || SelectedPiece.PieceType == Piece.TypeOfPiece.Queen))
                     {
-                        //Debug.Log("Contains No Enemy Piece");
                         PlaceMovePiece(square, validMove);
                     }
                     else
@@ -1030,12 +1029,10 @@ namespace Assets.Scripts
                     }
 
                     SelectedPiece.CurrentDirection = validMove.Dir;
-                    //DirectionLabel.text = SelectedPiece.CurrentDirection.ToString();
                     square.GetComponent<GameSquare>().CanMoveTo = false;
-
-                    //SelectedPiece.MovesRemaining--;
+                    
                     MoveCountLabel.text = SelectedPiece.MovesRemaining.ToString();
-
+                    
                     if (SelectedPiece.MovesRemaining > 0)
                     {
                         //Sets preview mode to get accurate moves
@@ -1043,7 +1040,7 @@ namespace Assets.Scripts
                         SelectedPiece.PreviewCoord = validMove.Coord;
 
                         SelectedPiece.PreviewMoves.Push(validMove);
-                        if(!ActionPieceWasPlaced)
+                        if(!ActionPieceWasPlaced || SelectedPiece.PieceType == Piece.TypeOfPiece.Queen)
                             SelectedPiece.GetAvailableMoves();
                     }
                     else if (SelectedPiece.MovesRemaining == 0)
@@ -1133,8 +1130,6 @@ namespace Assets.Scripts
             txtMoveCount.GetComponent<Text>().text = piece.MoveDice.DiceCollection.Count.ToString();
 
             PreviewMenu.transform.Find("CurrentPlayerImage").GetComponent<SpriteRenderer>().sprite = SelectedPiece.GetComponent<SpriteRenderer>().sprite;
-            //PlayerImage = SelectedPiece.GetComponent<SpriteRenderer>().sprite;
-            Debug.Log("Displayed Image");
 
             MovePreviewWindow(position);
 
@@ -1311,32 +1306,47 @@ namespace Assets.Scripts
         }
 
         // ****************************************************
-        // Behavior Implementation
+        // End Game Actions
         // ****************************************************
-        //public override void LeftClickDown()
-        //{
-        //    ////Debug.Log(this + " Left Click Down");
-        //    Dragging = true;
-        //}
+        public void Restart()
+        {
+            GameObject.FindObjectOfType<LevelManager>().LoadLevel("Level 01");
+        }
 
-        //public override void LeftClickUp()
-        //{
-        //    ////Debug.Log(this + " Left Click Up : " + Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        //    ClickCount++;
-        //    Dragging = false;
-        //}
+        public void Quit()
+        {
+            GameObject.FindObjectOfType<LevelManager>().LoadLevel("MainMenu");
+        }
 
-        //public override void LongPressUp()
-        //{
-        //    ////Debug.Log(this + " Long Press Up");
-        //    ClickCount++;
-        //    Dragging = false;
-        //}
+            // ****************************************************
+            // Behavior Implementation
+            // ****************************************************
+            //public override void LeftClickDown()
+            //{
+            //    ////Debug.Log(this + " Left Click Down");
+            //    Dragging = true;
+            //}
 
-        //public override void DoubleClick()
-        //{
-        //    //Disabled
-        //}
+            //public override void LeftClickUp()
+            //{
+            //    ////Debug.Log(this + " Left Click Up : " + Camera.main.ScreenToWorldPoint(Input.mousePosition));
+            //    ClickCount++;
+            //    Dragging = false;
+            //}
 
-    }
+            //public override void LongPressUp()
+            //{
+            //    ////Debug.Log(this + " Long Press Up");
+            //    ClickCount++;
+            //    Dragging = false;
+            //}
+
+            //public override void DoubleClick()
+            //{
+            //    //Disabled
+            //}
+
+            //
+
+        }
 }

@@ -8,31 +8,32 @@ namespace Assets.Scripts
     {
         public AudioClip[] Music;
         public AudioClip[] Sounds;
-        private AudioSource Manager;
+        private AudioSource MusicManager;
 
         void Start()
         {
             DontDestroyOnLoad(this);
-            Manager = GetComponent<AudioSource>();
-            Manager.clip = Music[0];
+            MusicManager = GetComponent<AudioSource>();
+            MusicManager.clip = Music[0];
+            MusicManager.loop = true;
 
             if (SettingsManager.GetVolume() >= 0)
             {
-                Manager.volume = SettingsManager.GetVolume() / 100;
+                MusicManager.volume = SettingsManager.GetVolume() / 100;
             }
             else
             {
-                Manager.volume = .50f;
+                MusicManager.volume = .50f;
             }
 
-            Manager.Play();
+            MusicManager.Play();
         }
 
         public void PlayMusic(int index)
         {
-            Manager.Stop();
-            Manager.clip = Music[index];
-            Manager.Play();
+            MusicManager.Stop();
+            MusicManager.clip = Music[index];
+            MusicManager.Play();
         }
 
         public void PlayMusic(string clipName)
@@ -42,9 +43,9 @@ namespace Assets.Scripts
 
         public void PlaySound(int index)
         {
-            Manager.Stop();
-            Manager.clip = Sounds[index];
-            Manager.Play();
+            MusicManager.Stop();
+            MusicManager.clip = Sounds[index];
+            MusicManager.Play();
         }
 
         public void PlaySound(string clipName)

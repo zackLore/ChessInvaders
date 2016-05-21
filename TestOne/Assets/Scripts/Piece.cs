@@ -172,26 +172,23 @@ namespace Assets.Scripts
         {
             if (Moving)
             {
+                //if (PieceType == TypeOfPiece.King) { GetComponent<Animator>().SetBool("Moving", true); }
                 if (PreviewMoves.Count >= 0)
                 {
-                    //Debug.Log("Preview Moves: " + PreviewMoves.Count);
                     if (!FinishedMoving)
                     {
-                        //Debug.Log("MakePieceMove: " + NextMove.Coord.row + "|" + NextMove.Coord.col);
                         if (NextMove != null)
                         {
                             this.LastMove = this.CurrentMove;//TODO: Needs to be current location.  Current Move is incorrect for this spot
                             gameRef.MakePieceMove(this);
                             gameRef.SelectedPiece.Coord = NextMove.Coord;
-                            gameRef.CurrentMove = this.CurrentMove;                
+                            gameRef.CurrentMove = this.CurrentMove;
                         }
                     }
                     else
                     {
-                        //Debug.Log("Finished Moving, NextMove = null");
                         if (PreviewMoves.Count == 0)//Move is complete, clear out values and make next game iteration
                         {
-                            //Debug.Log("PreviewMoves = " + PreviewMoves.Count());
                             gameRef.MoveToSquare(this, this.CurrentMove);
                             this.StartSpot = this.CurrentMove;
                             Moving = false;
@@ -201,7 +198,6 @@ namespace Assets.Scripts
                             gameRef.MoveCountLabel.text = gameRef.SelectedPiece.CurrentMoveCount.ToString();
                             if (gameRef.SelectedPiece.CurrentMove != null && gameRef.SelectedPiece.CurrentMove.Attacker != null)
                             {
-                                //Debug.Log("Attacker = " + gameRef.SelectedPiece.CurrentMove.Attacker);
                                 if (gameRef.AttackMenu == null)
                                 {
                                     try
@@ -234,6 +230,10 @@ namespace Assets.Scripts
                     NextMove = null;
                     Moving = false;
                 }
+            }
+            else
+            {
+                //if (PieceType == TypeOfPiece.King) { GetComponent<Animator>().SetBool("Moving", false); }
             }
         }
 
@@ -280,7 +280,7 @@ namespace Assets.Scripts
         {
             ClearHighlights();
             AvailableMoves.Clear();
-            //Debug.Log("Get Available Moves - " + PieceType + " - Coord " + Coord.col + "|" + Coord.row + ": ");
+
             switch(PieceType)
             {
                 case TypeOfPiece.Fighter:
@@ -390,12 +390,9 @@ namespace Assets.Scripts
 
         public bool PreviewMoveExists(Move move)
         {
-            //Debug.Log("Preview Moves: " + PreviewMoves.Count());
             if (move == null) { Debug.Log("Null Move"); }
-            //Debug.Log("Move: " + move.Coord.row + " | " + move.Coord.col);
             foreach (Move m in PreviewMoves)
             {
-                //Debug.Log(move.Coord.row + " | " + move.Coord.col);
                 if (m.Coord.row == move.Coord.row &&
                     m.Coord.col == move.Coord.col)
                 {
@@ -411,7 +408,6 @@ namespace Assets.Scripts
             CurrentMoveCount = 0;
             HasChangedDirection = false;
             CurrentDirection = Move.Direction.NONE;
-            //gameRef.DirectionLabel.text = CurrentDirection.ToString();
             MovesRemaining = CurrentMoveCount;
         }
 
@@ -694,17 +690,33 @@ namespace Assets.Scripts
             Dragging = false;
             if (GameRef.SelectedPiece != null && GameRef.SelectedPiece.Moving)
             {
+                Debug.Log(this + " " + GameRef.SelectedPiece.Moving);
                 return;
             }
 
-            if (GameRef.SelectMode)//when not moving - select piece or deselect piece
+            //if (GameRef.SelectMode)//when not moving - select piece or deselect piece
+            if (!GameRef.AttackMode)//when not moving - select piece or deselect piece
             {
-                if (GameRef.SelectedPiece == null)//piece selected
+                if (GameRef.SelectedPiece == null)//no piece selected yet
                 {
                     if (this.Owner == GameRef.CurrentTurn)
                     {
                         GameRef.SelectedPiece = this;
                         this.Selected = true;
+
+                        if (PieceType == TypeOfPiece.Queen )
+                        {
+                            GameRef.RollMoveDice();
+                            MovesRemaining = 100;
+                            CurrentMoveCount = 100;
+                        }
+                        else if (PieceType == TypeOfPiece.King)
+                        {
+                            GameRef.RollMoveDice();
+                            //MovesRemaining = 100;
+                            //CurrentMoveCount = 100;
+                        }
+
                         if (CurrentMoveCount > 0)
                         {
                             ClearValues();
@@ -718,6 +730,7 @@ namespace Assets.Scripts
                     {
                         if (this != GameRef.SelectedPiece)//Selecting a new piece
                         {
+                            Debug.Log("Selected " + this);
                             GameRef.SelectedPiece.Selected = false;
                             GameRef.ClearAllHighlights();
                             GameRef.ClearAllMovePieces();
@@ -727,15 +740,20 @@ namespace Assets.Scripts
                             //Assign piece as selected piece
                             GameRef.SelectedPiece = this;
                             Selected = true;
-                            Debug.Log("CurrentMoveCount: " + CurrentMoveCount);
+                            if (PieceType == TypeOfPiece.Queen || PieceType == TypeOfPiece.King)
+                            {
+                                MoveDice.RollDice();
+                                MovesRemaining = 100;
+                                CurrentMoveCount = 100;
+                            }
                             if (CurrentMoveCount > 0)
                             {
                                 GetAvailableMoves();
-                                Debug.Log("Moves Gotten");
                             }
                         }
                         else//Deselect Piece
                         {
+                            Debug.Log("Deselected " + this);
                             Selected = false;
                             GameRef.SelectedPiece = null;
                             GameRef.HidePreviewMenu();
@@ -754,8 +772,8 @@ namespace Assets.Scripts
                     GameRef.Highlight.SetActive(true);
 
                     //GameRef.RollMenu.gameObject.SetActive(true);
-                    GameRef.rollMenuLabel.text = GameRef.SelectedPiece.PieceType.ToString();
-                    GameRef.rollMenuLabel.text += "\n" + GameRef.SelectedPiece.Coord.row + " | " + GameRef.SelectedPiece.Coord.col;
+                    //GameRef.rollMenuLabel.text = GameRef.SelectedPiece.PieceType.ToString();
+                    //GameRef.rollMenuLabel.text += "\n" + GameRef.SelectedPiece.Coord.row + " | " + GameRef.SelectedPiece.Coord.col;
                 }
                 else
                 {
