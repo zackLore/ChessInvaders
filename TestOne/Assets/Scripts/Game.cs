@@ -9,6 +9,7 @@ using UnityEngine.UI;
 
 namespace Assets.Scripts
 {
+    [Serializable]
     public class Game : MonoBehaviour//TODO: Remove duplicate square code, finish implementation of Behaviors
     {
         public enum ScreenPosition
@@ -417,7 +418,36 @@ namespace Assets.Scripts
             p.Moving = false;
             SwapTurns();
             BattleLoser.Active = false;
-            BattleLoser.gameObject.SetActive(false);            
+            BattleLoser.gameObject.SetActive(false);
+            if (p.PieceType == Piece.TypeOfPiece.Bomb)
+            {
+                p.Active = false;
+                p.gameObject.SetActive(false);
+            }           
+            AttackMenu.gameObject.SetActive(false);
+
+            (AttackMenu.transform.Find("AttackPlayerOneValue").gameObject).GetComponent<Text>().text = "0";
+            (AttackMenu.transform.Find("AttackPlayerTwoValue").gameObject).GetComponent<Text>().text = "0";
+        }
+
+        public void CompleteBombAttack()
+        {
+            BattleLoser = SelectedPiece.CurrentMove.Attacker;
+            //** Check for Win/Loss
+            if (BattleLoser.PieceType == Piece.TypeOfPiece.King)
+            {
+                //Show Win Screen
+                WinMenu.transform.Find("PlayerLabel").GetComponent<Text>().text = "Player " + CurrentTurn.PlayerNumber;
+                WinMenu.gameObject.SetActive(true);
+            }
+
+            var p = SelectedPiece;
+            p.Moving = false;
+            SwapTurns();
+            BattleLoser.Active = false;
+            BattleLoser.gameObject.SetActive(false);
+            p.Active = false;
+            p.gameObject.SetActive(false);
             AttackMenu.gameObject.SetActive(false);
 
             (AttackMenu.transform.Find("AttackPlayerOneValue").gameObject).GetComponent<Text>().text = "0";
@@ -1129,7 +1159,20 @@ namespace Assets.Scripts
             var txtMoveCount = PreviewMenu.transform.Find("txtMoveDiceCount");
             txtMoveCount.GetComponent<Text>().text = piece.MoveDice.DiceCollection.Count.ToString();
 
-            PreviewMenu.transform.Find("CurrentPlayerImage").GetComponent<SpriteRenderer>().sprite = SelectedPiece.GetComponent<SpriteRenderer>().sprite;
+            var playerSpriteRenderer = PreviewMenu.transform.Find("CurrentPlayerImage").GetComponent<SpriteRenderer>();
+            playerSpriteRenderer.sprite = SelectedPiece.GetComponent<SpriteRenderer>().sprite;
+
+            var bombButton = PreviewMenu.transform.Find("BombButton");
+            if (SelectedPiece.PieceType == Piece.TypeOfPiece.Drone)
+            {
+                playerSpriteRenderer.gameObject.SetActive(false);
+                bombButton.gameObject.SetActive(true);
+            }
+            else
+            {
+                playerSpriteRenderer.gameObject.SetActive(true);
+                bombButton.gameObject.SetActive(false);
+            }
 
             MovePreviewWindow(position);
 
@@ -1172,6 +1215,17 @@ namespace Assets.Scripts
                 newStack.Push(moves.Pop());
             }
             return newStack;
+        }
+
+        /// <summary>
+        /// Turns the current selected piece into a bomb if it is a drone
+        /// </summary>
+        public void TransformIntoBomb()
+        {
+            //Transform Piece
+            SelectedPiece.TransformIntoBomb();
+            //Switch turns
+            SwapTurns();
         }
 
         public void UpdateMoveLabel()

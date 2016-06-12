@@ -7,6 +7,7 @@ using System;
 
 namespace Assets.Scripts
 {
+    [Serializable]
     public class Piece : BaseBehavior//TODO: Remove un-needed code, finish implementation of Behaviors
     {
         // ****************************************************
@@ -22,6 +23,12 @@ namespace Assets.Scripts
             Drone,
             Bomb
         }
+
+        //***** Colors for Bomb
+        private Color[] bombColors = { Color.cyan, Color.gray, Color.magenta, Color.red, Color.yellow, Color.white };
+        private int colorIndex = 0;
+        private int colorSwitchCounter = 0;
+        private int colorSwitchMax = 15;
 
         public TypeOfPiece PieceType = TypeOfPiece.None;
 
@@ -168,6 +175,24 @@ namespace Assets.Scripts
             ClickCount = 0;
         }
 
+        void Update()
+        {
+            if (PieceType == TypeOfPiece.Bomb)
+            {
+                if (colorSwitchCounter < colorSwitchMax)
+                {
+                    colorSwitchCounter++;
+                }
+                else
+                {
+                    colorSwitchCounter = 0;
+
+                    colorIndex = colorIndex < bombColors.Length - 1 ? colorIndex + 1 : 0;
+                    GetComponent<SpriteRenderer>().color = bombColors[colorIndex];
+                }
+            }
+        }
+
         void FixedUpdate()
         {
             if (Moving)
@@ -211,7 +236,16 @@ namespace Assets.Scripts
                                     }
                                 }
                                 gameRef.AttackMode = true;
-                                gameRef.ShowAttackMenu();
+                                if (PieceType == TypeOfPiece.Bomb || 
+                                    CurrentMove != null && CurrentMove.Attacker != null && CurrentMove.Attacker.PieceType == TypeOfPiece.Bomb)
+                                {
+                                    //Bomb Blows up!
+                                    GameRef.CompleteBombAttack();
+                                }
+                                else
+                                {
+                                    gameRef.ShowAttackMenu();
+                                }
                             }
                             else
                             {
@@ -527,7 +561,7 @@ namespace Assets.Scripts
             }
         }
 
-        public void SetPieceType(TypeOfPiece type)//TODO: Update these values with accurate dice 
+        public void SetPieceType(TypeOfPiece type)
         {
             PieceType = type;
             if (AttackDice == null || DefendDice == null || MoveDice == null)
@@ -565,6 +599,8 @@ namespace Assets.Scripts
                     DefendLimit = 6;
                     MoveLimit   = 6;
                     MoveDice.InitDice(1, 6);
+                    AttackDice.InitDice(1, 100, 99);
+                    DefendDice.InitDice(1, 100, 99);
                     break;
                 case TypeOfPiece.Queen:
                     AttackLimit = 20;
@@ -583,6 +619,16 @@ namespace Assets.Scripts
                     DefendDice.InitDice(1, 0, 0);
                     break;
             }        
+        }
+
+        public void TransformIntoBomb()
+        {
+            if (PieceType == TypeOfPiece.Drone)
+            {
+                SetPieceType(TypeOfPiece.Bomb);
+                //Change Image
+
+            }
         }
 
         // ****************************************************

@@ -28,16 +28,10 @@ namespace Assets.Scripts
 
         public void DetectClicks(bool detectDoubleClick = true)
         {
-            if (GameRef != null && GameRef.SelectedPiece != null && GameRef.SelectedPiece.Moving) { return; }//Ignore clicks when piece is moving
-
-            //if (Input.GetMouseButtonDown(0))//Left Mouse Click Down
-            //{
-            //    StartPressTime();
-            //    ClickCount++;
-            //    LastClickTime = Time.time;
-            //    LeftClickDown();                
-            //    GameRef.Dragging = true;
-            //}
+            if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject() && 
+                GameRef != null && 
+                GameRef.SelectedPiece != null && 
+                GameRef.SelectedPiece.Moving) { return; }//Ignore clicks when piece is moving
 
             if (Input.GetMouseButtonDown(0) || Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)//touch started
             {
@@ -47,47 +41,7 @@ namespace Assets.Scripts
                 LeftClickDown();                
                 GameRef.Dragging = true;
             }
-
-            //if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended)//touch released
-            //{
-            //    EndPressTime();
-            //    double duration = (ClickEndTime - ClickStartTime).TotalMilliseconds;
-            //    if (this.GetType() == typeof(Piece))
-            //    {
-            //        //Debug.Log(this + "| duration: " + duration + " lastClick - Time.time: " + (Time.time - LastClickTime) + " doubleClickTime: " + DoubleClickTime + " ClickCount: " + ClickCount);
-            //    }
-            //    if (duration >= LongPressTime)
-            //    {
-            //        LongPressUp();
-            //    }
-            //    else
-            //    {
-            //        if (Time.time - LastClickTime <= DoubleClickTime || ClickCount == 2)
-            //        {
-            //            Debug.Log("DoubleClick | " + (click == null));
-            //            if (click != null)
-            //            {
-            //                StopCoroutine(click);
-            //                click = null;
-            //            }
-            //            DoubleClick();
-            //        }
-            //        else
-            //        {
-            //            Debug.Log("LeftClick | " + (click == null));
-            //            if (click == null)
-            //            {
-            //                click = StartCoroutine(TriggerSingleClick());
-            //                Debug.Log("StartCoroutine | " + DoubleClickTime + ": " + (click == null));
-            //            }
-            //        }
-            //    }
-            //    //LastClickTime = Time.time;
-
-            //    GameRef.Dragging = false;
-            //    ResetPressTime();
-            //    //ClickCount = 0;
-            //}
+            
 
             if (Input.GetMouseButtonUp(0) || Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended)//Left Mouse Click Up
             {
