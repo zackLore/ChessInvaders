@@ -8,32 +8,35 @@ namespace Assets.Scripts
     {
         public AudioClip[] Music;
         public AudioClip[] Sounds;
-        private AudioSource MusicManager;
+        public AudioSource MusicManager_;
+        public AudioSource SoundManager_;
 
         void Start()
         {
             DontDestroyOnLoad(this);
-            MusicManager = GetComponent<AudioSource>();
-            MusicManager.clip = Music[0];
-            MusicManager.loop = true;
+            var audioSources = GetComponents<AudioSource>();
+            MusicManager_ = audioSources[0];
+            
+            MusicManager_.clip = Music[0];
+            MusicManager_.loop = true;
 
             if (SettingsManager.GetVolume() >= 0)
             {
-                MusicManager.volume = SettingsManager.GetVolume() / 100;
+                MusicManager_.volume = SettingsManager.GetVolume() / 100;
             }
             else
             {
-                MusicManager.volume = .50f;
+                MusicManager_.volume = .50f;
             }
 
-            MusicManager.Play();
+            MusicManager_.Play();
         }
 
         public void PlayMusic(int index)
         {
-            MusicManager.Stop();
-            MusicManager.clip = Music[index];
-            MusicManager.Play();
+            MusicManager_.Stop();
+            MusicManager_.clip = Music[index];
+            MusicManager_.Play();
         }
 
         public void PlayMusic(string clipName)
@@ -43,14 +46,50 @@ namespace Assets.Scripts
 
         public void PlaySound(int index)
         {
-            MusicManager.Stop();
-            MusicManager.clip = Sounds[index];
-            MusicManager.Play();
+            MusicManager_.Stop();
+            MusicManager_.clip = Sounds[index];
+            MusicManager_.Play();
         }
 
-        public void PlaySound(string clipName)
+        public void PlaySound(GameObject piece, string clipName, bool loopSound = false)
         {
+            SoundManager_ = piece.GetComponent<AudioSource>();
+            Debug.Log(piece);
+            if (SoundManager_ == null){ return; }
 
+            Debug.Log(clipName + "...");
+
+            foreach (var sound in Sounds)
+            {
+                if (sound.name == clipName)
+                {
+                    Debug.Log("Play Sound: " + clipName);
+                    SoundManager_.Stop();
+                    SoundManager_.clip = sound;
+                    SoundManager_.loop = loopSound;
+                    SoundManager_.Play();
+                }
+            }
+        }
+
+        public void SetVolume(float volume)
+        {
+            if (MusicManager_ != null)
+            {
+                MusicManager_.volume = volume;
+            }
+            if (SoundManager_ != null)
+            {
+                SoundManager_.volume = volume;
+            }
+        }
+
+        public void StopSound()
+        {
+            if (SoundManager_ != null)
+            {
+                SoundManager_.Stop();
+            }
         }
     }
 }

@@ -16,6 +16,7 @@ namespace Assets.Scripts
         {
             //levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
             //soundManager = GameObject.Find("SoundManager").GetComponent<SoundManager>();
+
             levelManager = GameObject.FindObjectOfType<LevelManager>();
             soundManager = GameObject.FindObjectOfType<SoundManager>();
 
@@ -53,7 +54,8 @@ namespace Assets.Scripts
         {
             SettingsManager.SetVolume(slider.value);
             volumeLabel.text = slider.value.ToString();
-            soundManager.GetComponent<AudioSource>().volume = SettingsManager.GetVolume() / 100;
+            //soundManager.GetComponent<AudioSource>().volume = SettingsManager.GetVolume() / 100;
+            soundManager.SetVolume(SettingsManager.GetVolume() / 100);
         }
     }
 }

@@ -137,6 +137,8 @@ namespace Assets.Scripts
 
         public TimeSpan HoverTime;
         public float HoverStart = 1.5f;
+                
+        public GameObject UI;
 
         void Awake()
         {
@@ -156,6 +158,15 @@ namespace Assets.Scripts
             MoveDice = (Dice)((GameObject)Instantiate(Resources.Load(@"Prefabs/Dice"))).GetComponent<Dice>();
             MoveDice.transform.parent = this.transform;
             SetDice();
+            
+            var comps = this.gameObject.GetComponentsInChildren<Transform>();
+            var ui = comps.Where(x => x.name == "PlayerUI").FirstOrDefault();
+            
+            if (ui != null)
+            {
+                UI = ui.gameObject;
+                HideUI();
+            }
         }
 
         void OnMouseEnter()
@@ -422,6 +433,11 @@ namespace Assets.Scripts
             SetHighlights();
         }
 
+        public void HideUI()
+        {
+            UI.SetActive(false);
+        }
+
         public bool PreviewMoveExists(Move move)
         {
             if (move == null) { Debug.Log("Null Move"); }
@@ -434,6 +450,11 @@ namespace Assets.Scripts
                 }
             }
             return false;
+        }
+
+        public void ResetUI()
+        {
+            //Turn off all of the arrows and buttons
         }
 
         public void ResetValues()
@@ -621,6 +642,11 @@ namespace Assets.Scripts
             }        
         }
 
+        public void ShowUI()
+        {
+            UI.SetActive(true);
+        }
+
         public void TransformIntoBomb()
         {
             if (PieceType == TypeOfPiece.Drone)
@@ -725,14 +751,14 @@ namespace Assets.Scripts
         // ****************************************************
         public override void LeftClickDown()
         {
-            //Debug.Log(this + " Left Click Down");
+            Debug.Log(this + " Left Click Down");
             //ClickCount++;
             Dragging = true;
         }
 
         public override void LeftClickUp()
         {
-            //Debug.Log(this + " Left Click Up");
+            Debug.Log(this + " Left Click Up");
             Dragging = false;
             if (GameRef.SelectedPiece != null && GameRef.SelectedPiece.Moving)
             {
@@ -749,8 +775,9 @@ namespace Assets.Scripts
                     {
                         GameRef.SelectedPiece = this;
                         this.Selected = true;
+                        ShowUI();
 
-                        if (PieceType == TypeOfPiece.Queen )
+                        if (PieceType == TypeOfPiece.Queen)
                         {
                             GameRef.RollMoveDice();
                             MovesRemaining = 100;
@@ -761,6 +788,16 @@ namespace Assets.Scripts
                             GameRef.RollMoveDice();
                             //MovesRemaining = 100;
                             //CurrentMoveCount = 100;
+                        }
+
+                        if (PieceType == TypeOfPiece.Bomb)
+                        {
+                            //Play bomb sound
+                            GameRef.soundManager.PlaySound(this.gameObject, "8bit bomb beep", true);
+                        }
+                        else
+                        {
+                            GameRef.soundManager.StopSound();
                         }
 
                         if (CurrentMoveCount > 0)
@@ -776,7 +813,8 @@ namespace Assets.Scripts
                     {
                         if (this != GameRef.SelectedPiece)//Selecting a new piece
                         {
-                            Debug.Log("Selected " + this);
+                            //Debug.Log("Selected " + this);
+                            GameRef.SelectedPiece.HideUI();
                             GameRef.SelectedPiece.Selected = false;
                             GameRef.ClearAllHighlights();
                             GameRef.ClearAllMovePieces();
@@ -786,12 +824,24 @@ namespace Assets.Scripts
                             //Assign piece as selected piece
                             GameRef.SelectedPiece = this;
                             Selected = true;
+                            ShowUI();
+
                             if (PieceType == TypeOfPiece.Queen || PieceType == TypeOfPiece.King)
                             {
                                 MoveDice.RollDice();
                                 MovesRemaining = 100;
                                 CurrentMoveCount = 100;
                             }
+                            if (PieceType == TypeOfPiece.Bomb)
+                            {
+                                //Play bomb sound
+                                GameRef.soundManager.PlaySound(this.gameObject, "8bit bomb beep", true);
+                            }
+                            else
+                            {
+                                GameRef.soundManager.StopSound();
+                            }
+
                             if (CurrentMoveCount > 0)
                             {
                                 GetAvailableMoves();
@@ -800,12 +850,16 @@ namespace Assets.Scripts
                         else//Deselect Piece
                         {
                             Debug.Log("Deselected " + this);
+                            HideUI();
                             Selected = false;
                             GameRef.SelectedPiece = null;
-                            GameRef.HidePreviewMenu();
+                            //GameRef.HidePreviewMenu();
                             GameRef.ClearAllHighlights();
                             GameRef.ClearAllMovePieces();
                             GameRef.DisplayRollButton();
+                          
+                            GameRef.soundManager.StopSound();
+                            
                             ClearValues();                            
                         }                        
                     }

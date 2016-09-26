@@ -31,6 +31,7 @@ namespace Assets.Scripts
                 Sounds = ((GameObject)Instantiate(Resources.Load(@"Prefabs/SoundManager")));
                 soundManager = Sounds.GetComponent<SoundManager>();
                 GameObject.DontDestroyOnLoad(soundManager);
+                soundManager.gameObject.SetActive(true);
             }
             else
             {

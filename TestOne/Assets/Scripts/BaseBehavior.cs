@@ -33,7 +33,7 @@ namespace Assets.Scripts
                 GameRef.SelectedPiece != null && 
                 GameRef.SelectedPiece.Moving) { return; }//Ignore clicks when piece is moving
 
-            if (Input.GetMouseButtonDown(0) || Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)//touch started
+            if (Input.GetMouseButtonDown(0) || Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)//touch started Left Click Down
             {
                 StartPressTime();
                 ClickCount++;
@@ -47,10 +47,7 @@ namespace Assets.Scripts
             {
                 EndPressTime();                
                 double duration = (ClickEndTime - ClickStartTime).TotalMilliseconds;
-                if (this.GetType() == typeof(Piece))
-                {
-                    //Debug.Log(this + "| duration: " + duration + " lastClick - Time.time: " + (Time.time - LastClickTime) + " doubleClickTime: " + DoubleClickTime + " ClickCount: " + ClickCount);
-                }
+
                 if (duration >= LongPressTime)
                 {
                     LongPressUp();

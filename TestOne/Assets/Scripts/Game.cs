@@ -75,12 +75,15 @@ namespace Assets.Scripts
         public ScreenPosition PreviewMenuScreenPosition = ScreenPosition.NONE;
 
         //** Win Menu
-        public Canvas WinMenu;   
+        public Canvas WinMenu;
+
+        public SoundManager soundManager;
         
         public bool Dragging = false;
         public bool ActionPieceWasPlaced = false;
 
-        private bool _attackMode;
+        [SerializeField]
+        private bool _attackMode;        
         public bool AttackMode
         {
             get { return _attackMode; }
@@ -98,6 +101,8 @@ namespace Assets.Scripts
                 }
             }
         }
+
+        [SerializeField]
         private bool _moveMode;
         public bool MoveMode
         {
@@ -116,6 +121,8 @@ namespace Assets.Scripts
                 }
             }
         }
+
+        [SerializeField]
         private bool _selectMode;
         public bool SelectMode
         {
@@ -144,8 +151,7 @@ namespace Assets.Scripts
         // ****************************************************
         void Awake()
         {
-            //GameRef = this;
-            //InitClickTimes();
+            soundManager = GameObject.FindObjectOfType<SoundManager>();
 
             //Debug.Log("Game.Awake():" + DateTime.Now.TimeOfDay);
             Player1 = (Player)((GameObject)Instantiate(Resources.Load(@"Prefabs/Player"))).GetComponent<Player>();
@@ -305,28 +311,29 @@ namespace Assets.Scripts
             GetDragDirectionFromSelectedPiece();
             LastMousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             
-            if (SelectedPiece != null && !SelectedPiece.Moving && !AttackMode)
-            {
-                if (!PreviewMenu.gameObject.activeInHierarchy)// Show the Preview Menu
-                {
-                    ShowPreviewMenu(SelectedPiece, GetSelectedPieceScreenPosition());
-                }
-                else
-                {
-                    if (SelectedPiece.PreviewMoves.Count > 0 && (Dragging))
-                    {
-                        ScreenPosition PreviewPosition = GetScreenPosition(SelectedPiece.PreviewMoves.Peek().Pos);
-                        if (PreviewPosition == PreviewMenuScreenPosition)
-                        {
-                            MovePreviewWindowKiddieCorner(PreviewPosition);
-                        }
-                    }
-                }
-            }
-            else if (SelectedPiece == null)
-            {
-                PreviewMenu.gameObject.SetActive(false);
-            }
+            // Turned off preview menu 9-13-16
+            //if (SelectedPiece != null && !SelectedPiece.Moving && !AttackMode)
+            //{
+            //    if (!PreviewMenu.gameObject.activeInHierarchy)// Show the Preview Menu
+            //    {
+            //        ShowPreviewMenu(SelectedPiece, GetSelectedPieceScreenPosition());
+            //    }
+            //    else
+            //    {
+            //        if (SelectedPiece.PreviewMoves.Count > 0 && (Dragging))
+            //        {
+            //            ScreenPosition PreviewPosition = GetScreenPosition(SelectedPiece.PreviewMoves.Peek().Pos);
+            //            if (PreviewPosition == PreviewMenuScreenPosition)
+            //            {
+            //                MovePreviewWindowKiddieCorner(PreviewPosition);
+            //            }
+            //        }
+            //    }
+            //}
+            //else if (SelectedPiece == null)
+            //{
+            //    PreviewMenu.gameObject.SetActive(false);
+            //}
 
             if (MoveMode && Dragging)
             {
