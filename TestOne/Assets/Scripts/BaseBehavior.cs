@@ -32,7 +32,7 @@ namespace Assets.Scripts
                 GameRef != null && 
                 GameRef.SelectedPiece != null && 
                 GameRef.SelectedPiece.Moving) { return; }//Ignore clicks when piece is moving
-
+            
             if (Input.GetMouseButtonDown(0) || Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)//touch started Left Click Down
             {
                 StartPressTime();
@@ -42,44 +42,46 @@ namespace Assets.Scripts
                 GameRef.Dragging = true;
             }
             
-
             if (Input.GetMouseButtonUp(0) || Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended)//Left Mouse Click Up
             {
-                EndPressTime();                
-                double duration = (ClickEndTime - ClickStartTime).TotalMilliseconds;
+                //EndPressTime();                
+                //double duration = (ClickEndTime - ClickStartTime).TotalMilliseconds;
 
-                if (duration >= LongPressTime)
-                {
-                    LongPressUp();
-                    //ClickCount = 0;
-                }
-                else
-                {
-                    if (Time.time - LastClickTime <= DoubleClickTime && ClickCount == 2 && detectDoubleClick)
-                    {
-                        if (click != null)
-                        {
-                            StopCoroutine(click);
-                            click = null;
-                        }
-                        EndPressTime();
-                        DoubleClick();
-                        ClickCount = 0;                   
-                    }
-                    else
-                    {
-                        if (click == null)
-                        {
-                            click = StartCoroutine(TriggerSingleClick());
-                            EndPressTime();
-                        }
-                    }
-                }
-                //LastClickTime = Time.time;
+                //if (duration >= LongPressTime)
+                //{
+                //    LongPressUp();
+                //    //ClickCount = 0;
+                //}
+                //else
+                //{
+                //    if (Time.time - LastClickTime <= DoubleClickTime && ClickCount == 2 && detectDoubleClick)
+                //    {
+                //        if (click != null)
+                //        {
+                //            StopCoroutine(click);
+                //            click = null;
+                //        }
+                //        EndPressTime();
+                //        DoubleClick();
+                //        ClickCount = 0;                   
+                //    }
+                //    else
+                //    {
+                //        if (click == null)
+                //        {
+                //            click = StartCoroutine(TriggerSingleClick());
+                //            EndPressTime();
+                //        }
+                //    }
+                //}
+                ////LastClickTime = Time.time;
+
+                //GameRef.Dragging = false;
+                //ResetPressTime();
+                ////ClickCount = 0;
 
                 GameRef.Dragging = false;
-                ResetPressTime();
-                //ClickCount = 0;
+                LeftClickUp();
             }            
 
             
