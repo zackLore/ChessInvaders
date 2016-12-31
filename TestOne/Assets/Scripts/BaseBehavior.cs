@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Assets.Scripts
 {
@@ -28,12 +24,12 @@ namespace Assets.Scripts
 
         public void DetectClicks(bool detectDoubleClick = true)
         {
-            if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject() && 
-                GameRef != null && 
+           //if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject() &&
+            if (GameRef != null && 
                 GameRef.SelectedPiece != null && 
                 GameRef.SelectedPiece.Moving) { return; }//Ignore clicks when piece is moving
             
-            if (Input.GetMouseButtonDown(0) || Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)//touch started Left Click Down
+            if (Input.GetMouseButtonDown(0) || Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began && !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())//touch started Left Click Down
             {
                 StartPressTime();
                 ClickCount++;
@@ -42,7 +38,7 @@ namespace Assets.Scripts
                 GameRef.Dragging = true;
             }
             
-            if (Input.GetMouseButtonUp(0) || Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended)//Left Mouse Click Up
+            if (Input.GetMouseButtonUp(0) || Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended && !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())//Left Mouse Click Up
             {
                 //EndPressTime();                
                 //double duration = (ClickEndTime - ClickStartTime).TotalMilliseconds;

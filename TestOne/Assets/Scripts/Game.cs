@@ -152,8 +152,7 @@ namespace Assets.Scripts
         void Awake()
         {
             soundManager = GameObject.FindObjectOfType<SoundManager>();
-
-            //Debug.Log("Game.Awake():" + DateTime.Now.TimeOfDay);
+            
             Player1 = (Player)((GameObject)Instantiate(Resources.Load(@"Prefabs/Player"))).GetComponent<Player>();
             Player1.InitPlayer(1);        
             Player1.Name = "Player 1";
@@ -993,6 +992,7 @@ namespace Assets.Scripts
 
                 MoveCountLabel.text = SelectedPiece.CurrentMoveCount.ToString();
                 MoveMode = true;
+                Debug.Log("Move Dice Rolled");
             }
             else
             {

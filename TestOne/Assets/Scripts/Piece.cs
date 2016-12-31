@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System;
+using UnityEngine.UI;
 
 namespace Assets.Scripts
 {
@@ -139,6 +140,10 @@ namespace Assets.Scripts
         public float HoverStart = 1.5f;
                 
         public GameObject UI;
+        public Transform AttackButton;
+        public Transform DefendButton;
+        public Transform MoveButton;
+        public Transform RollButton;
 
         void Awake()
         {
@@ -151,22 +156,9 @@ namespace Assets.Scripts
             AvailableMoves = new List<Move>();
             PreviewMoves = new Stack<Move>();
             _currentPosition = this.gameObject.transform.position;
-            AttackDice = (Dice)((GameObject)Instantiate(Resources.Load(@"Prefabs/Dice"))).GetComponent<Dice>();
-            AttackDice.transform.parent = this.transform;
-            DefendDice = (Dice)((GameObject)Instantiate(Resources.Load(@"Prefabs/Dice"))).GetComponent<Dice>();
-            DefendDice.transform.parent = this.transform;
-            MoveDice = (Dice)((GameObject)Instantiate(Resources.Load(@"Prefabs/Dice"))).GetComponent<Dice>();
-            MoveDice.transform.parent = this.transform;
-            SetDice();
-            
-            var comps = this.gameObject.GetComponentsInChildren<Transform>();
-            var ui = comps.Where(x => x.name == "PlayerUI").FirstOrDefault();
-            
-            if (ui != null)
-            {
-                UI = ui.gameObject;
-                HideUI();
-            }
+
+            InitializeDice();
+            InitializeUI();
         }
 
         void OnMouseEnter()
@@ -176,7 +168,7 @@ namespace Assets.Scripts
 
         void OnMouseOver()
         {
-            DetectClicks();
+            DetectClicks(false);
         }
 
         void OnMouseExit()
@@ -436,6 +428,54 @@ namespace Assets.Scripts
         public void HideUI()
         {
             UI.SetActive(false);
+            UI.layer = 1;
+        }
+
+        public void InitializeDice()
+        {
+            AttackDice = (Dice)((GameObject)Instantiate(Resources.Load(@"Prefabs/Dice"))).GetComponent<Dice>();
+            AttackDice.transform.parent = this.transform;
+            DefendDice = (Dice)((GameObject)Instantiate(Resources.Load(@"Prefabs/Dice"))).GetComponent<Dice>();
+            DefendDice.transform.parent = this.transform;
+            MoveDice = (Dice)((GameObject)Instantiate(Resources.Load(@"Prefabs/Dice"))).GetComponent<Dice>();
+            MoveDice.transform.parent = this.transform;
+
+            SetDice();
+        }
+
+        public void InitializeUI()
+        {
+            var comps = this.gameObject.GetComponentsInChildren<Transform>();
+            var ui = comps.Where(x => x.name == "PlayerUI").FirstOrDefault();
+
+            if (ui != null)
+            {
+                Dictionary<string, Button> buttonScripts = new Dictionary<string, Button>();
+
+                UI = ui.gameObject;
+
+                AttackButton = UI.transform.Find("AttackButton");
+                Text attackText = (Text)AttackButton.GetComponentInChildren<Text>();
+                attackText.text = AttackLimit.ToString();
+
+                Button ab = AttackButton.GetComponent<Button>();
+                buttonScripts.Add("AttackButton", ab);
+                ab.onClick.AddListener(() => GameRef.RollMoveDice());
+
+                DefendButton = UI.transform.Find("DefendButton");
+                Text defenceText = (Text)DefendButton.GetComponentInChildren<Text>();
+                defenceText.text = DefendLimit.ToString();
+
+                MoveButton = UI.transform.Find("MoveButton");
+                Text moveText = (Text)MoveButton.GetComponentInChildren<Text>();
+                moveText.text = AvailableMoves.ToString();
+
+                RollButton = UI.transform.Find("RollButton");
+                Text rollText = RollButton.GetComponentInChildren<Text>();
+                rollText.text = MoveLimit.ToString();
+
+                HideUI();
+            }
         }
 
         public bool PreviewMoveExists(Move move)
@@ -645,6 +685,9 @@ namespace Assets.Scripts
         public void ShowUI()
         {
             UI.SetActive(true);
+            Canvas canvas = UI.GetComponent<Canvas>();
+            canvas.sortingLayerID = 2;
+            UpdateUI();
         }
 
         public void TransformIntoBomb()
@@ -654,6 +697,25 @@ namespace Assets.Scripts
                 SetPieceType(TypeOfPiece.Bomb);
                 //Change Image
 
+            }
+        }
+
+        public void UpdateUI()
+        {
+            //Highlight buttons based on what game mode
+            if (GameRef.SelectMode)
+            {
+                Debug.Log("z pos: " + RollButton.transform.position.z);
+                var image = RollButton.GetComponent("Image");
+                if (image != null)
+                {
+                    //var sprite = image.GetComponent<Sprite>();
+                    Image img = (Image)image;
+                    img.color = new Color(255, 255, 255, .25f);
+                }
+
+                MoveButton.gameObject.SetActive(false);
+                
             }
         }
 
@@ -797,7 +859,10 @@ namespace Assets.Scripts
                         }
                         else
                         {
-                            GameRef.soundManager.StopSound();
+                            if (GameRef.soundManager != null)
+                            {
+                                GameRef.soundManager.StopSound();
+                            }
                         }
 
                         if (CurrentMoveCount > 0)
@@ -839,7 +904,7 @@ namespace Assets.Scripts
                             }
                             else
                             {
-                                GameRef.soundManager.StopSound();
+                                if (GameRef.soundManager != null) { GameRef.soundManager.StopSound(); }
                             }
 
                             if (CurrentMoveCount > 0)
@@ -857,28 +922,28 @@ namespace Assets.Scripts
                             GameRef.ClearAllHighlights();
                             GameRef.ClearAllMovePieces();
                             GameRef.DisplayRollButton();
-                          
-                            GameRef.soundManager.StopSound();
+
+                            if (GameRef.soundManager != null) { GameRef.soundManager.StopSound(); }
                             
                             ClearValues();                            
                         }                        
                     }
-                    GameRef.UpdateMoveLabel();
+                    //GameRef.UpdateMoveLabel();
                 }
 
-                if (GameRef.SelectedPiece != null && this.Owner == GameRef.CurrentTurn)
-                {
-                    GameRef.Highlight.transform.position = GameRef.SelectedPiece.transform.position;
-                    GameRef.Highlight.SetActive(true);
+                //if (GameRef.SelectedPiece != null && this.Owner == GameRef.CurrentTurn)
+                //{
+                //    GameRef.Highlight.transform.position = GameRef.SelectedPiece.transform.position;
+                //    GameRef.Highlight.SetActive(true);
 
-                    //GameRef.RollMenu.gameObject.SetActive(true);
-                    //GameRef.rollMenuLabel.text = GameRef.SelectedPiece.PieceType.ToString();
-                    //GameRef.rollMenuLabel.text += "\n" + GameRef.SelectedPiece.Coord.row + " | " + GameRef.SelectedPiece.Coord.col;
-                }
-                else
-                {
-                    GameRef.Highlight.SetActive(false);
-                }
+                //    //GameRef.RollMenu.gameObject.SetActive(true);
+                //    //GameRef.rollMenuLabel.text = GameRef.SelectedPiece.PieceType.ToString();
+                //    //GameRef.rollMenuLabel.text += "\n" + GameRef.SelectedPiece.Coord.row + " | " + GameRef.SelectedPiece.Coord.col;
+                //}
+                //else
+                //{
+                //    GameRef.Highlight.SetActive(false);
+                //}
             }
         }
 
