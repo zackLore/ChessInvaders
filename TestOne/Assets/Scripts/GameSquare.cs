@@ -50,8 +50,10 @@ namespace Assets.Scripts
         public override void LeftClickUp()
         {
             //Debug.Log(this + " Left Click Up : " + Camera.main.ScreenToWorldPoint(Input.mousePosition));
-            if (GameRef.SelectedPiece != null && GameRef.SelectedPiece.Moving) { return; }//ignore clicks while moving
-            GameRef.SetMovePiece();
+            if ((GameRef.SelectedPiece != null) && !GameRef.SelectedPiece.Moving)   // if the player has already selected a piece AND they're not trying to move it
+            {
+                GameRef.SetMovePiece();
+            }
         }
 
         public override void LongPressUp()
