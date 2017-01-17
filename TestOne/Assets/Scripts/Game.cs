@@ -9,6 +9,13 @@ using UnityEngine.UI;
 
 namespace Assets.Scripts
 {
+    public enum PlayerActionMode
+    {
+        kSelect,
+        kMove,
+        kAttack,
+    };
+
     [Serializable]
     public class Game : MonoBehaviour//TODO: Remove duplicate square code, finish implementation of Behaviors
     {
@@ -81,66 +88,7 @@ namespace Assets.Scripts
         
         public bool Dragging = false;
         public bool ActionPieceWasPlaced = false;
-
-        [SerializeField]
-        private bool _attackMode;        
-        public bool AttackMode
-        {
-            get { return _attackMode; }
-            set
-            {
-                if (value == true)
-                {
-                    _attackMode = value;
-                    MoveMode = false;
-                    SelectMode = false;
-                }
-                else
-                {
-                    _attackMode = value;
-                }
-            }
-        }
-
-        [SerializeField]
-        private bool _moveMode;
-        public bool MoveMode
-        {
-            get { return _moveMode; }
-            set
-            {
-                if (value == true)
-                {
-                    _moveMode = value;
-                    SelectMode = false;
-                    AttackMode = false;
-                }
-                else
-                {
-                    _moveMode = value;
-                }
-            }
-        }
-
-        [SerializeField]
-        private bool _selectMode;
-        public bool SelectMode
-        {
-            get { return _selectMode; }
-            set
-            {
-                if (value == true)
-                {
-                    _selectMode = value;
-                    MoveMode = false;
-                    AttackMode = false;
-                }
-                else
-                {
-                    _selectMode = value;
-                }
-            }
-        }
+        public PlayerActionMode CurrentPlayerActionMode = PlayerActionMode.kSelect;
 
         public string defaultBGColor = "DDE2E2FF";
         public string p1BGColor = "22FF36FF";
@@ -161,7 +109,7 @@ namespace Assets.Scripts
             Player2.Name = "Player 2";
             CurrentTurn = Player1;
 
-            SelectMode = true;
+            CurrentPlayerActionMode = PlayerActionMode.kSelect;
 
             BackgroundSquare = (GameObject)Instantiate(Resources.Load(@"Prefabs/BackgroundSquare"), Vector3.zero, Quaternion.identity);
             Square = (GameObject)Instantiate(Resources.Load(@"Prefabs/GameSquare"), Vector3.zero, Quaternion.identity);
@@ -311,7 +259,7 @@ namespace Assets.Scripts
             LastMousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             
             // Turned off preview menu 9-13-16
-            //if (SelectedPiece != null && !SelectedPiece.Moving && !AttackMode)
+            //if (SelectedPiece != null && !SelectedPiece.Moving && (CurrentMode != Mode.kAttack))
             //{
             //    if (!PreviewMenu.gameObject.activeInHierarchy)// Show the Preview Menu
             //    {
@@ -334,7 +282,7 @@ namespace Assets.Scripts
             //    PreviewMenu.gameObject.SetActive(false);
             //}
 
-            if (MoveMode && Dragging)
+            if (Dragging && (CurrentPlayerActionMode != PlayerActionMode.kMove))
             {
                 HandleMove();
             }
@@ -749,9 +697,8 @@ namespace Assets.Scripts
                                 }
                             }
 
-                            if (SelectedPiece.PreviewMoves.Count == 0 && AttackMode)//Start Attack Sequence
+                            if ((SelectedPiece.PreviewMoves.Count == 0) && (CurrentPlayerActionMode == PlayerActionMode.kAttack))//Start Attack Sequence
                             {
-                                MoveMode = false;
                                 //Debug.Log("Start Attack Sequence...");
                                 ShowAttackMenu();
                             }
@@ -991,12 +938,8 @@ namespace Assets.Scripts
                 SelectedPiece.GetAvailableMoves();
 
                 MoveCountLabel.text = SelectedPiece.CurrentMoveCount.ToString();
-                MoveMode = true;
+                CurrentPlayerActionMode = PlayerActionMode.kMove;
                 Debug.Log("Move Dice Rolled");
-            }
-            else
-            {
-                //MoveMode = false;
             }
         }
 
@@ -1199,7 +1142,8 @@ namespace Assets.Scripts
             //Clear all rolls from all pieces
 
             Highlight.SetActive(false);
-            SelectMode = true;
+            CurrentPlayerActionMode = PlayerActionMode.kSelect;
+
             if (CurrentTurn == Player1)
             {
                 CurrentTurn = Player2;

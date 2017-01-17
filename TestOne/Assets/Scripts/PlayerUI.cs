@@ -172,19 +172,32 @@ namespace Assets.Scripts
 
         public void UpdateUI()
         {
-            if (GameRef.MoveMode)
+            switch (GameRef.CurrentPlayerActionMode)
             {
-                AttackButton.gameObject.SetActive(true);
-                DefendButton.gameObject.SetActive(true);
-                MoveButton.gameObject.SetActive(true);
-                RollButton.gameObject.SetActive(false);
-            }
-            else if (GameRef.SelectMode)
-            {
-                AttackButton.gameObject.SetActive(true);
-                DefendButton.gameObject.SetActive(true);
-                MoveButton.gameObject.SetActive(false);
-                RollButton.gameObject.SetActive(true);
+                case PlayerActionMode.kMove:
+                    {
+                        AttackButton.gameObject.SetActive(true);
+                        DefendButton.gameObject.SetActive(true);
+                        MoveButton.gameObject.SetActive(true);
+                        RollButton.gameObject.SetActive(false);
+                        break;
+                    }
+                case PlayerActionMode.kSelect:
+                    {
+                        AttackButton.gameObject.SetActive(true);
+                        DefendButton.gameObject.SetActive(true);
+                        MoveButton.gameObject.SetActive(false);
+                        RollButton.gameObject.SetActive(true);
+                        break;
+                    }
+                default:
+                    {
+                        AttackButton.gameObject.SetActive(false);
+                        DefendButton.gameObject.SetActive(false);
+                        MoveButton.gameObject.SetActive(false);
+                        RollButton.gameObject.SetActive(false);
+                        break;
+                    }
             }
         }
     }

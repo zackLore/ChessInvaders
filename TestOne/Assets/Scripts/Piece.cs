@@ -220,8 +220,7 @@ namespace Assets.Scripts
                             gameRef.MoveToSquare(this, this.CurrentMove);
                             this.StartSpot = this.CurrentMove;
                             Moving = false;
-
-                            gameRef.MoveMode = false;
+                            
                             ResetValues();
                             gameRef.MoveCountLabel.text = gameRef.SelectedPiece.CurrentMoveCount.ToString();
                             if (gameRef.SelectedPiece.CurrentMove != null && gameRef.SelectedPiece.CurrentMove.Attacker != null)
@@ -238,7 +237,8 @@ namespace Assets.Scripts
                                         throw;
                                     }
                                 }
-                                gameRef.AttackMode = true;
+                                gameRef.CurrentPlayerActionMode = PlayerActionMode.kAttack;
+
                                 if (PieceType == TypeOfPiece.Bomb || 
                                     CurrentMove != null && CurrentMove.Attacker != null && CurrentMove.Attacker.PieceType == TypeOfPiece.Bomb)
                                 {
@@ -703,7 +703,7 @@ namespace Assets.Scripts
         public void UpdateUI()
         {
             //Highlight buttons based on what game mode
-            if (GameRef.SelectMode)
+            if (GameRef.CurrentPlayerActionMode == PlayerActionMode.kSelect)
             {
                 Debug.Log("z pos: " + RollButton.transform.position.z);
                 var image = RollButton.GetComponent("Image");
@@ -827,11 +827,10 @@ namespace Assets.Scripts
                 Debug.Log(this + " " + GameRef.SelectedPiece.Moving);
                 return;
             }
-
-            //if (GameRef.SelectMode)//when not moving - select piece or deselect piece
-            if (!GameRef.AttackMode)//when not moving - select piece or deselect piece
+            
+            if (GameRef.CurrentPlayerActionMode != PlayerActionMode.kAttack)    //when not moving - select piece or deselect piece
             {
-                if (GameRef.SelectedPiece == null)//no piece selected yet
+                if (GameRef.SelectedPiece == null)      //no piece selected yet
                 {
                     if (this.Owner == GameRef.CurrentTurn)
                     {
