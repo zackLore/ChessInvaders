@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Assets.Scripts
 {
@@ -22,21 +23,51 @@ namespace Assets.Scripts
             GameRef = GameObject.Find("Game").GetComponent<Game>();
             InitClickTimes();
         }
-
-        void OnMouseEnter()
+        
+        public override void OnPointerEnter(PointerEventData eventData)
         {
             CanMoveTo = true;//allow move to this square
         }
 
-        void OnMouseOver()
+        public override void OnPointerUp(PointerEventData eventData)
         {
             GameRef.CurrentSquare = this.gameObject;
             DetectClicks();
         }
 
-        void OnMouseExit()
+        public override void OnPointerDown(PointerEventData eventData)
+        {
+            //DetectClicks(false);
+        }
+
+        public override void OnPointerExit(PointerEventData eventData)
         {
             CanRemove = true;
+        }
+
+        // ****************************************************
+        // Private Methods
+        // ****************************************************
+
+        private void HandleSelect()
+        {
+            if (GameRef.SelectedPiece != null)
+            {
+                GameRef.DeselectPiece(GameRef.SelectedPiece);
+            }
+        }
+
+        private void HandleMove()
+        {
+            //if (GameRef.SelectedPiece.Moving == true)
+            {
+                GameRef.SetMovePiece();
+            }
+        }
+
+        private void HandleAttack()
+        {
+            //  End attack mode?
         }
 
         // ****************************************************
@@ -50,9 +81,17 @@ namespace Assets.Scripts
         public override void LeftClickUp()
         {
             //Debug.Log(this + " Left Click Up : " + Camera.main.ScreenToWorldPoint(Input.mousePosition));
-            if ((GameRef.SelectedPiece != null) && !GameRef.SelectedPiece.Moving)   // if the player has already selected a piece AND they're not trying to move it
+            switch (GameRef.CurrentPlayerActionMode)
             {
-                GameRef.SetMovePiece();
+                case PlayerActionMode.kSelect:
+                    HandleSelect();
+                    break;
+                case PlayerActionMode.kMove:
+                    HandleMove();
+                    break;
+                case PlayerActionMode.kAttack:
+                    HandleAttack();
+                    break;
             }
         }
 

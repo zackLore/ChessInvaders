@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
 using System.Collections;
 
 using Assets;
@@ -16,9 +17,22 @@ public class MovePiece : BaseBehavior//TODO: Remove un-needed code, finish imple
         InitClickTimes();
     }
 
-    void OnMouseOver()
+    public override void OnPointerEnter(PointerEventData eventData)
+    {
+    }
+
+    public override void OnPointerUp(PointerEventData eventData)
     {
         DetectClicks();
+    }
+
+    public override void OnPointerDown(PointerEventData eventData)
+    {
+        //DetectClicks(false);
+    }
+
+    public override void OnPointerExit(PointerEventData eventData)
+    {
     }
 
     // ****************************************************

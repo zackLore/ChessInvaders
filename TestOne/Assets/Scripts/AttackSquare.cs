@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Assets.Scripts
 {
@@ -16,10 +17,23 @@ namespace Assets.Scripts
             GameRef = GameObject.Find("Game").GetComponent<Game>();
             InitClickTimes();
         }
+        
+        public override void OnPointerEnter(PointerEventData eventData)
+        {
+        }
 
-        void OnMouseOver()
+        public override void OnPointerUp(PointerEventData eventData)
         {
             DetectClicks();
+        }
+
+        public override void OnPointerDown(PointerEventData eventData)
+        {
+            //DetectClicks(false);
+        }
+
+        public override void OnPointerExit(PointerEventData eventData)
+        {
         }
 
         // ****************************************************

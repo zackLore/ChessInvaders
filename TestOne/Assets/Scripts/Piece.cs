@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 namespace Assets.Scripts
 {
@@ -139,12 +140,6 @@ namespace Assets.Scripts
         public TimeSpan HoverTime;
         public float HoverStart = 1.5f;
                 
-        public GameObject UI;
-        public Transform AttackButton;
-        public Transform DefendButton;
-        public Transform MoveButton;
-        public Transform RollButton;
-
         void Awake()
         {
             GameRef = GameObject.Find("Game").GetComponent<Game>();
@@ -158,20 +153,24 @@ namespace Assets.Scripts
             _currentPosition = this.gameObject.transform.position;
 
             InitializeDice();
-            InitializeUI();
         }
 
-        void OnMouseEnter()
+        public override void OnPointerEnter(PointerEventData eventData)
         {
             HoverTime = DateTime.Now.TimeOfDay;
         }
 
-        void OnMouseOver()
+        public override void OnPointerUp(PointerEventData eventData)
         {
             DetectClicks(false);
         }
 
-        void OnMouseExit()
+        public override void OnPointerDown(PointerEventData eventData)
+        {
+            //DetectClicks(false);
+        }
+
+        public override void OnPointerExit(PointerEventData eventData)
         {
             GameRef.HidePreviewMenu();
             HoverTime = TimeSpan.FromSeconds(0);
@@ -222,7 +221,7 @@ namespace Assets.Scripts
                             Moving = false;
                             
                             ResetValues();
-                            gameRef.MoveCountLabel.text = gameRef.SelectedPiece.CurrentMoveCount.ToString();
+                            //gameRef.MoveCountLabel.text = gameRef.SelectedPiece.CurrentMoveCount.ToString();
                             if (gameRef.SelectedPiece.CurrentMove != null && gameRef.SelectedPiece.CurrentMove.Attacker != null)
                             {
                                 if (gameRef.AttackMenu == null)
@@ -424,13 +423,7 @@ namespace Assets.Scripts
             }
             SetHighlights();
         }
-
-        public void HideUI()
-        {
-            UI.SetActive(false);
-            UI.layer = 1;
-        }
-
+        
         public void InitializeDice()
         {
             AttackDice = (Dice)((GameObject)Instantiate(Resources.Load(@"Prefabs/Dice"))).GetComponent<Dice>();
@@ -442,42 +435,7 @@ namespace Assets.Scripts
 
             SetDice();
         }
-
-        public void InitializeUI()
-        {
-            var comps = this.gameObject.GetComponentsInChildren<Transform>();
-            var ui = comps.Where(x => x.name == "PlayerUI").FirstOrDefault();
-
-            if (ui != null)
-            {
-                Dictionary<string, Button> buttonScripts = new Dictionary<string, Button>();
-
-                UI = ui.gameObject;
-
-                AttackButton = UI.transform.Find("AttackButton");
-                Text attackText = (Text)AttackButton.GetComponentInChildren<Text>();
-                attackText.text = AttackLimit.ToString();
-
-                Button ab = AttackButton.GetComponent<Button>();
-                buttonScripts.Add("AttackButton", ab);
-                ab.onClick.AddListener(() => GameRef.RollMoveDice());
-
-                DefendButton = UI.transform.Find("DefendButton");
-                Text defenceText = (Text)DefendButton.GetComponentInChildren<Text>();
-                defenceText.text = DefendLimit.ToString();
-
-                MoveButton = UI.transform.Find("MoveButton");
-                Text moveText = (Text)MoveButton.GetComponentInChildren<Text>();
-                moveText.text = AvailableMoves.ToString();
-
-                RollButton = UI.transform.Find("RollButton");
-                Text rollText = RollButton.GetComponentInChildren<Text>();
-                rollText.text = MoveLimit.ToString();
-
-                HideUI();
-            }
-        }
-
+        
         public bool PreviewMoveExists(Move move)
         {
             if (move == null) { Debug.Log("Null Move"); }
@@ -491,12 +449,7 @@ namespace Assets.Scripts
             }
             return false;
         }
-
-        public void ResetUI()
-        {
-            //Turn off all of the arrows and buttons
-        }
-
+        
         public void ResetValues()
         {
             Coord = CurrentMove != null ? CurrentMove.Coord : Coord;
@@ -681,15 +634,7 @@ namespace Assets.Scripts
                     break;
             }        
         }
-
-        public void ShowUI()
-        {
-            UI.SetActive(true);
-            Canvas canvas = UI.GetComponent<Canvas>();
-            canvas.sortingLayerID = 2;
-            UpdateUI();
-        }
-
+        
         public void TransformIntoBomb()
         {
             if (PieceType == TypeOfPiece.Drone)
@@ -700,24 +645,39 @@ namespace Assets.Scripts
             }
         }
 
-        public void UpdateUI()
+        public void Select()
         {
-            //Highlight buttons based on what game mode
-            if (GameRef.CurrentPlayerActionMode == PlayerActionMode.kSelect)
+            Selected = true;
+            HandlePieceSelectionSound();
+            
+            // Update move count
+            if (CurrentMoveCount > 0)
             {
-                Debug.Log("z pos: " + RollButton.transform.position.z);
-                var image = RollButton.GetComponent("Image");
-                if (image != null)
-                {
-                    //var sprite = image.GetComponent<Sprite>();
-                    Image img = (Image)image;
-                    img.color = new Color(255, 255, 255, .25f);
-                }
-
-                MoveButton.gameObject.SetActive(false);
-                
+                ClearValues();
+                GetAvailableMoves();
             }
         }
+
+        public void Deselect()
+        {
+            Debug.Log("Deselected " + this);
+
+            Selected = false;
+            ClearValues();
+        }
+
+        public int RollMoveDice()
+        {
+            if (CurrentMoveCount == 0)
+            {
+                CurrentMoveCount = MoveDice.RollDice();
+                MovesRemaining = CurrentMoveCount;
+                Debug.Log("Move Dice Rolled");
+            }
+
+            return CurrentMoveCount;
+        }
+
 
         // ****************************************************
         // Private Methods
@@ -808,6 +768,118 @@ namespace Assets.Scripts
             return moves;
         }
 
+        private void HandlePieceSelectionSound()
+        {
+            if (PieceType == TypeOfPiece.Bomb)
+            {
+                //Play bomb sound
+                GameRef.soundManager.PlaySound(this.gameObject, "8bit bomb beep", true);
+            }
+            else
+            {
+                if (GameRef.soundManager != null)
+                {
+                    GameRef.soundManager.StopSound();
+                }
+            }
+        }
+
+
+        private void HandleSelect()
+        {
+            //  if piece is yours
+            if (this.Owner == GameRef.CurrentTurn)
+            {
+                //  if no piece is selected
+                if (GameRef.SelectedPiece == null)
+                {
+                    GameRef.SelectPiece(this);
+                }
+                //  if a piece is selected
+                else
+                {
+                    //  if selected piece is yours
+                    if (GameRef.SelectedPiece.Owner == GameRef.CurrentTurn)
+                    {
+                        //  if this piece is the currently selected piece
+                        if (this == GameRef.SelectedPiece)
+                        {
+                            GameRef.DeselectPiece(GameRef.SelectedPiece);
+                        }
+                        //  if this piece is a different piece
+                        else
+                        {
+                            GameRef.DeselectPiece(GameRef.SelectedPiece);
+                            GameRef.SelectPiece(this);
+                        }
+                    }
+                    //  if selected piece is opponent's
+                    else
+                    {
+                        GameRef.DeselectPiece(GameRef.SelectedPiece);
+                        // TODO: Do we show info on a selected enemy piece?
+                    }
+                }
+            }
+            //  if piece is opponent's
+            else
+            {
+                //  if no piece is selected
+                if (GameRef.SelectedPiece == null)
+                {
+                    //  TODO: Do we show info on selected enemy piece?
+                }
+                //  if a piece is selected
+                else
+                {
+                    //  if selected piece is yours
+                    if (GameRef.SelectedPiece.Owner == GameRef.CurrentTurn)
+                    {
+                        GameRef.DeselectPiece(GameRef.SelectedPiece);
+                        //  TODO: Do we show info on a selected enemy piece?
+                    }
+                    //  if selected piece is opponent's
+                    else
+                    {
+                        //  if this piece is the currently selected piece
+                        if (this == GameRef.SelectedPiece)
+                        {
+                            GameRef.DeselectPiece(GameRef.SelectedPiece);
+                        }
+                        //  if this piece is a different piece
+                        else
+                        {
+                            GameRef.DeselectPiece(GameRef.SelectedPiece);
+                            GameRef.SelectPiece(this);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void HandleMove()
+        {
+            if (gameRef.SelectedPiece == this)
+            {
+                GameRef.DeselectPiece(GameRef.SelectedPiece);
+                GameRef.CurrentPlayerActionMode = PlayerActionMode.kSelect;
+            }
+            else
+            {
+                GameRef.DeselectPiece(GameRef.SelectedPiece);
+                GameRef.CurrentPlayerActionMode = PlayerActionMode.kSelect;
+                GameRef.SelectPiece(this);
+            }
+        }
+
+        private void HandleAttack()
+        {
+            //  if piece is yours
+            //      can you attack your own piece?
+            //  if piece is opponents
+            //      attack opponent piece
+        }
+
         // ****************************************************
         // Behavior Implementation
         // ****************************************************
@@ -822,113 +894,25 @@ namespace Assets.Scripts
         {
             Debug.Log(this + " Left Click Up");
             Dragging = false;
+
             if (GameRef.SelectedPiece != null && GameRef.SelectedPiece.Moving)
             {
                 Debug.Log(this + " " + GameRef.SelectedPiece.Moving);
                 return;
             }
             
-            if (GameRef.CurrentPlayerActionMode != PlayerActionMode.kAttack)    //when not moving - select piece or deselect piece
+            switch(GameRef.CurrentPlayerActionMode)
             {
-                if (GameRef.SelectedPiece == null)      //no piece selected yet
-                {
-                    if (this.Owner == GameRef.CurrentTurn)
-                    {
-                        GameRef.SelectedPiece = this;
-                        this.Selected = true;
-                        ShowUI();
-
-                        if (PieceType == TypeOfPiece.Queen)
-                        {
-                            GameRef.RollMoveDice();
-                            MovesRemaining = 100;
-                            CurrentMoveCount = 100;
-                        }
-                        else if (PieceType == TypeOfPiece.King)
-                        {
-                            GameRef.RollMoveDice();
-                            //MovesRemaining = 100;
-                            //CurrentMoveCount = 100;
-                        }
-
-                        if (PieceType == TypeOfPiece.Bomb)
-                        {
-                            //Play bomb sound
-                            GameRef.soundManager.PlaySound(this.gameObject, "8bit bomb beep", true);
-                        }
-                        else
-                        {
-                            if (GameRef.soundManager != null)
-                            {
-                                GameRef.soundManager.StopSound();
-                            }
-                        }
-
-                        if (CurrentMoveCount > 0)
-                        {
-                            ClearValues();
-                            GetAvailableMoves();
-                        }
-                    }
-                }
-                else
-                {
-                    if (this.Owner == GameRef.CurrentTurn)
-                    {
-                        if (this != GameRef.SelectedPiece)//Selecting a new piece
-                        {
-                            //Debug.Log("Selected " + this);
-                            GameRef.SelectedPiece.HideUI();
-                            GameRef.SelectedPiece.Selected = false;
-                            GameRef.ClearAllHighlights();
-                            GameRef.ClearAllMovePieces();
-                            ClearValues();
-                            //Check to see if piece can be selected
-
-                            //Assign piece as selected piece
-                            GameRef.SelectedPiece = this;
-                            Selected = true;
-                            ShowUI();
-
-                            if (PieceType == TypeOfPiece.Queen || PieceType == TypeOfPiece.King)
-                            {
-                                MoveDice.RollDice();
-                                MovesRemaining = 100;
-                                CurrentMoveCount = 100;
-                            }
-                            if (PieceType == TypeOfPiece.Bomb)
-                            {
-                                //Play bomb sound
-                                GameRef.soundManager.PlaySound(this.gameObject, "8bit bomb beep", true);
-                            }
-                            else
-                            {
-                                if (GameRef.soundManager != null) { GameRef.soundManager.StopSound(); }
-                            }
-
-                            if (CurrentMoveCount > 0)
-                            {
-                                GetAvailableMoves();
-                            }
-                        }
-                        else//Deselect Piece
-                        {
-                            Debug.Log("Deselected " + this);
-                            HideUI();
-                            Selected = false;
-                            GameRef.SelectedPiece = null;
-                            //GameRef.HidePreviewMenu();
-                            GameRef.ClearAllHighlights();
-                            GameRef.ClearAllMovePieces();
-                            GameRef.DisplayRollButton();
-
-                            if (GameRef.soundManager != null) { GameRef.soundManager.StopSound(); }
-                            
-                            ClearValues();                            
-                        }                        
-                    }
-                    //GameRef.UpdateMoveLabel();
-                }
+                case PlayerActionMode.kSelect:
+                    HandleSelect();
+                    break;
+                case PlayerActionMode.kMove:
+                    HandleMove();
+                    break;
+                case PlayerActionMode.kAttack:
+                    HandleAttack();
+                    break;
+            }
 
                 //if (GameRef.SelectedPiece != null && this.Owner == GameRef.CurrentTurn)
                 //{
@@ -943,7 +927,6 @@ namespace Assets.Scripts
                 //{
                 //    GameRef.Highlight.SetActive(false);
                 //}
-            }
         }
 
         public override void LongPressUp()
@@ -958,7 +941,7 @@ namespace Assets.Scripts
             Dragging = false;
             if (this == GameRef.SelectedPiece)
             {
-                GameRef.RollMoveDice();
+                RollMoveDice();
             }
         }
 

@@ -42,10 +42,10 @@ namespace Assets.Scripts
 
         public GameObject Board;
         public GameObject Square;
-        public GameObject BackgroundSquare;
         public GameObject Highlight;
         public GameObject PlaceHolder;
         public GameObject MovePiece;
+        public PlayerUI Player_UI;
 
         //** References to allow buttons to trigger movement and attacks
         public GameObject CurrentMovePiece;
@@ -110,8 +110,7 @@ namespace Assets.Scripts
             CurrentTurn = Player1;
 
             CurrentPlayerActionMode = PlayerActionMode.kSelect;
-
-            BackgroundSquare = (GameObject)Instantiate(Resources.Load(@"Prefabs/BackgroundSquare"), Vector3.zero, Quaternion.identity);
+            
             Square = (GameObject)Instantiate(Resources.Load(@"Prefabs/GameSquare"), Vector3.zero, Quaternion.identity);
             SquareHeight = Square.gameObject.GetComponent<SpriteRenderer>().sprite.rect.height;
             SquareWidth = Square.gameObject.GetComponent<SpriteRenderer>().sprite.rect.width;
@@ -131,7 +130,7 @@ namespace Assets.Scripts
 
             //RollMenu.gameObject.SetActive(true);
 
-            MoveCountLabel = PreviewMenu.transform.Find("MoveCountLabel").GetComponent<Text>();
+            //MoveCountLabel = PreviewMenu.transform.Find("MoveCountLabel").GetComponent<Text>();
 
             this.Pieces.Clear();
             float height = Square.gameObject.GetComponent<SpriteRenderer>().sprite.rect.height;
@@ -140,7 +139,7 @@ namespace Assets.Scripts
             Vector3 startPos = new Vector3();
             startPos.x = -width * 4;//half of the total width (4 squares)
             startPos.y = height * 4;
-            startPos.z = -1;
+            startPos.z = Consts.zPos_Piece;
                         
             for (int row = 0; row < 8; row++)
             {
@@ -148,14 +147,16 @@ namespace Assets.Scripts
                 BackgroundSquares[row] = new GameObject[8];
                 for (int col = 0; col < 8; col++)
                 {
-                    GameObject newSquare = (GameObject)Instantiate(Square, new Vector3(startPos.x, startPos.y), Quaternion.identity);
+                    GameObject newSquare = (GameObject)Instantiate(Resources.Load(@"Prefabs/GameSquare"), Vector3.zero, Quaternion.identity);
                     newSquare.transform.parent = Board.transform;
-                    newSquare.name = row + ":" + col;
+                    newSquare.transform.position = new Vector3(startPos.x, startPos.y, Consts.zPos_GameSquare);
+                    newSquare.name = "Square[" + row + "," + col + "]";
                     Squares[row][col] = newSquare;
 
-                    GameObject newBackgroundSquare = (GameObject)Instantiate(BackgroundSquare, new Vector3(startPos.x, startPos.y), Quaternion.identity);
+                    GameObject newBackgroundSquare = (GameObject)Instantiate(Resources.Load(@"Prefabs/BackgroundSquare"), Vector3.zero, Quaternion.identity);
                     newBackgroundSquare.transform.parent = Board.transform;
-                    newBackgroundSquare.name = row + ":" + col;
+                    newBackgroundSquare.transform.position = new Vector3(startPos.x, startPos.y, Consts.zPos_BackgroundSquare);
+                    newBackgroundSquare.name = "BG_Square[" + row + "," + col + "]";
                     BackgroundSquares[row][col] = newBackgroundSquare;
 
                     GameObject p = null;
@@ -165,7 +166,6 @@ namespace Assets.Scripts
                     {
                         case 7:
                             p = Player2.Pieces[0][col];
-                            p.transform.position = startPos;
                             p.transform.Rotate(new Vector3(0, 0, 180));
                             temp = p.GetComponent<Piece>();
                             temp.gameRef = this;
@@ -173,43 +173,42 @@ namespace Assets.Scripts
                             temp.SetPieceType(temp.PieceType);
                             temp.Coord = new Structs.Coordinate { col = col, row = row };
                             temp.StartSpot = new Move() { Pos = startPos, Coord = temp.Coord, Attacker = temp };
-                            this.Pieces.Add(p);
+                            Pieces.Add(p);
                             break;
                         case 6:
                             p = Player2.Pieces[1][col];
-                            p.transform.position = startPos;
                             p.transform.Rotate(new Vector3(0, 0, 180));
                             temp = p.GetComponent<Piece>();
                             temp.gameRef = this;
                             temp.Owner = Player2;
                             temp.Coord = new Structs.Coordinate { col = col, row = row };
                             temp.StartSpot = new Move() { Pos = startPos, Coord = temp.Coord, Attacker = temp };
-                            this.Pieces.Add(p);
+                            Pieces.Add(p);
                             break;
                         case 1:
                             p = Player1.Pieces[1][col];
-                            p.transform.position = startPos;
                             temp = p.GetComponent<Piece>();
                             temp.gameRef = this;
                             temp.Owner = Player1;
                             temp.Coord = new Structs.Coordinate { col = col, row = row };
                             temp.StartSpot = new Move() { Pos = startPos, Coord = temp.Coord, Attacker = temp };
-                            this.Pieces.Add(p);
+                            Pieces.Add(p);
                             break;
                         case 0:
                             p = Player1.Pieces[0][col];
-                            p.transform.position = startPos;
                             temp = p.GetComponent<Piece>();
                             temp.gameRef = this;
                             temp.Owner = Player1;
                             temp.Coord = new Structs.Coordinate { col = col, row = row };
                             temp.StartSpot = new Move() { Pos = startPos, Coord = temp.Coord, Attacker = temp };
-                            this.Pieces.Add(p);
+                            Pieces.Add(p);
                             break;
                     }
+
                     if (p != null)
                     {
-                        p.transform.parent = newSquare.transform;                        
+                        p.transform.parent = Board.transform;
+                        p.transform.position = startPos;
                     }
                     startPos.x = startPos.x + width;
                 }
@@ -929,20 +928,6 @@ namespace Assets.Scripts
             Invoke("CompleteAttack", 1);
         }
         
-        public void RollMoveDice()
-        {
-            if (SelectedPiece != null && SelectedPiece.CurrentMoveCount == 0)
-            {
-                SelectedPiece.CurrentMoveCount = SelectedPiece.MoveDice.RollDice();
-                SelectedPiece.MovesRemaining = SelectedPiece.CurrentMoveCount;
-                SelectedPiece.GetAvailableMoves();
-
-                MoveCountLabel.text = SelectedPiece.CurrentMoveCount.ToString();
-                CurrentPlayerActionMode = PlayerActionMode.kMove;
-                Debug.Log("Move Dice Rolled");
-            }
-        }
-
         public void SetMovePiece()
         {
             GameObject square = null;
@@ -1011,7 +996,7 @@ namespace Assets.Scripts
                     SelectedPiece.CurrentDirection = validMove.Dir;
                     square.GetComponent<GameSquare>().CanMoveTo = false;
                     
-                    MoveCountLabel.text = SelectedPiece.MovesRemaining.ToString();
+                    //MoveCountLabel.text = SelectedPiece.MovesRemaining.ToString();
                     
                     if (SelectedPiece.MovesRemaining > 0)
                     {
@@ -1182,8 +1167,45 @@ namespace Assets.Scripts
         public void UpdateMoveLabel()
         {
             if (SelectedPiece == null) { return; }
-            MoveCountLabel.text = SelectedPiece.MovesRemaining < 0 ? "0" : SelectedPiece.MovesRemaining.ToString();
+            //MoveCountLabel.text = SelectedPiece.MovesRemaining < 0 ? "0" : SelectedPiece.MovesRemaining.ToString();
         }
+
+
+        // ****************************************************
+        // Select Piece Methods
+        // ****************************************************
+        public void SelectPiece(Piece pieceToSelect)
+        {
+            if (pieceToSelect != null)
+            {
+                pieceToSelect.Select();
+            }
+
+            SelectedPiece = pieceToSelect;
+            Player_UI.UpdateUI(pieceToSelect);
+        }
+
+        public void DeselectPiece(Piece pieceToDeselect)
+        {
+            if (pieceToDeselect != null)
+            {
+                pieceToDeselect.Deselect();
+            }
+
+            ClearAllHighlights();
+            ClearAllMovePieces();
+
+            if (soundManager != null)
+            {
+                soundManager.StopSound();
+            }
+
+            pieceToDeselect.ClearHighlights();
+
+            SelectedPiece = null;
+            Player_UI.UpdateUI(null);
+        }
+
 
         // ****************************************************
         // Private Methods

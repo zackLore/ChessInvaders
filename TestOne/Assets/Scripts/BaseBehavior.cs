@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections;
-
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Assets.Scripts
 {
-    public abstract class BaseBehavior : MonoBehaviour
+    public abstract class BaseBehavior : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler, IPointerExitHandler, IPointerUpHandler
     {
         public Game GameRef = null;
         public Move CurrentMove = null;
@@ -24,12 +24,12 @@ namespace Assets.Scripts
 
         public void DetectClicks(bool detectDoubleClick = true)
         {
-           //if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject() &&
+           //if (EventSystem.current.IsPointerOverGameObject() &&
             if (GameRef != null && 
                 GameRef.SelectedPiece != null && 
                 GameRef.SelectedPiece.Moving) { return; }//Ignore clicks when piece is moving
             
-            if (Input.GetMouseButtonDown(0) || Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began && !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())//touch started Left Click Down
+            if (Input.GetMouseButtonDown(0) || Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began && !EventSystem.current.IsPointerOverGameObject())//touch started Left Click Down
             {
                 StartPressTime();
                 ClickCount++;
@@ -38,7 +38,7 @@ namespace Assets.Scripts
                 GameRef.Dragging = true;
             }
             
-            if (Input.GetMouseButtonUp(0) || Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended && !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())//Left Mouse Click Up
+            if (Input.GetMouseButtonUp(0) || Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended && !EventSystem.current.IsPointerOverGameObject())//Left Mouse Click Up
             {
                 //EndPressTime();                
                 //double duration = (ClickEndTime - ClickStartTime).TotalMilliseconds;
@@ -154,9 +154,13 @@ namespace Assets.Scripts
         }
 
         //Abstract Behaviors
+        public abstract void OnPointerDown(PointerEventData eventData);
+        public abstract void OnPointerEnter(PointerEventData eventData);
+        public abstract void OnPointerExit(PointerEventData eventData);
+        public abstract void OnPointerUp(PointerEventData eventData);
         public abstract void DoubleClick();
         public abstract void LeftClickDown();
         public abstract void LeftClickUp();
-        public abstract void LongPressUp();        
+        public abstract void LongPressUp();
     }
 }
