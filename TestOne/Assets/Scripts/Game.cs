@@ -207,7 +207,7 @@ namespace Assets.Scripts
 
                     if (p != null)
                     {
-                        p.transform.parent = Board.transform;
+                        p.transform.parent = newSquare.transform;
                         p.transform.position = startPos;
                     }
                     startPos.x = startPos.x + width;
