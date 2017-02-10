@@ -278,11 +278,10 @@ namespace Assets.Scripts
         // ****************************************************
         public void ClearHighlight(Move move)
         {
-            var square = gameRef.Squares[move.Coord.row][move.Coord.col];
+            var square = gameRef.BackgroundSquares[move.Coord.row][move.Coord.col];
             if (square != null)
             {
-                //reset color
-                square.GetComponent<SpriteRenderer>().color = Color.white;
+                square.GetComponent<SpriteRenderer>().color = Color.clear;
             }                
         }
 
@@ -292,12 +291,7 @@ namespace Assets.Scripts
             {
                 foreach (Move move in AvailableMoves)
                 {
-                    var square = gameRef.BackgroundSquares[move.Coord.row][move.Coord.col];
-                    if (square != null)
-                    {
-                        //reset color
-                        square.GetComponent<SpriteRenderer>().color = new Color(0f, 0f, 0f, 0f);
-                    }
+                    ClearHighlight(move);
                 }
             }
         }
