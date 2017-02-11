@@ -4,7 +4,7 @@ using System.Collections;
 
 namespace Assets.Scripts
 {
-    public class Consts : MonoBehaviour
+    public class Consts
     {
         // Reference for keeping the different parts of the game in the right z order
         public const float zPos_Background        = 100.0f;
@@ -13,6 +13,12 @@ namespace Assets.Scripts
         public const float zPos_Piece             = 0.0f;
         public const float zPos_PlayerUI          = -25.0f;
         public const float zPos_Menu              = -100.0f;
+
+        // Coordinate Boundaries
+        public const int minRow = 0;
+        public const int maxRow = 7;
+        public const int minCol = 0;
+        public const int maxCol = 7;
 
         // Colors
         static private Color _disabledMultiplier = new Color(1, 1, 1, 0.5f);

@@ -13,15 +13,14 @@ namespace Assets.Scripts
         {
             NONE,
             UP,
-            UP_LEFT,
             UP_RIGHT,
             RIGHT,
+            DOWN_RIGHT,
             DOWN,
             DOWN_LEFT,
-            DOWN_RIGHT,
-            LEFT
+            LEFT,
+            UP_LEFT
         }
-
         public enum RelativeDirection
         {
             NONE,
@@ -29,16 +28,66 @@ namespace Assets.Scripts
             TOWARDS
         }
 
-        public Vector3 FromPos;
+        readonly public static Structs.Coordinate[] Offsets =
+        {
+            new Structs.Coordinate(0, 0),   // Direction.NONE
+            new Structs.Coordinate(-1, 0),  // Direction.UP
+            new Structs.Coordinate(-1, 1),  // Direction.UP_RIGHT
+            new Structs.Coordinate(0, 1),   // Direction.RIGHT
+            new Structs.Coordinate(1, 1),   // Direction.DOWN_RIGHT
+            new Structs.Coordinate(1, 0),   // Direction.DOWN
+            new Structs.Coordinate(1, -1),  // Direction.DOWN_LEFT
+            new Structs.Coordinate(0, -1),  // Direction.LEFT
+            new Structs.Coordinate(-1, -1), // Direction.UP_LEFT
+        };
+
+        readonly public static Direction[] Directions_All =
+        {
+            Direction.UP,
+            Direction.UP_RIGHT,
+            Direction.RIGHT,
+            Direction.DOWN_RIGHT,
+            Direction.DOWN,
+            Direction.DOWN_LEFT,
+            Direction.LEFT,
+            Direction.UP_LEFT,
+        };
+
+        readonly public static Direction[] Directions_NoDiagonals =
+        {
+            Direction.UP,
+            Direction.RIGHT,
+            Direction.DOWN,
+            Direction.LEFT,
+        };
+
         public Vector3 Pos;
-        public Structs.Coordinate FromCoord;
         public Structs.Coordinate Coord;
 
-        public Direction FromDir;
         public Direction Dir;
         public GameObject Owner = null;
 
-        private Piece attacker;
-        public Piece Attacker { get; set; }
+        private Piece _attacker;
+        public Piece Attacker
+        {
+            get { return _attacker; }
+            set { _attacker = value; }
+        }
+
+        public Move(Vector3 pos, Structs.Coordinate coord, Direction dir, Piece attacker)
+        {
+            Pos = pos;
+            Coord = coord;
+            Dir = dir;
+            Attacker = attacker;
+        }
+
+        public Move(Vector3 pos, Structs.Coordinate coord, Piece attacker)
+        {
+            Pos = pos;
+            Coord = coord;
+            Dir = Move.Direction.NONE;
+            Attacker = attacker;
+        }
     }
 }

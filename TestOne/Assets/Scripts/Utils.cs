@@ -8,175 +8,7 @@ using UnityEngine;
 namespace Assets.Scripts
 {
     public static class Utils
-    {
-        public static Move CheckMoveDown(Game game, Structs.Coordinate coordinate)
-        {
-            if (coordinate.row + 1 > 7) { return null; }
-
-            Move move = new Move();
-            move.Coord.col = coordinate.col;
-            move.Coord.row = coordinate.row + 1;
-            move.Dir = Move.Direction.DOWN;
-            move.FromDir = Move.Direction.UP;
-
-            //var square = game.Squares[coordinate.y + 1][coordinate.x];
-            var square = game.Squares[move.Coord.row][move.Coord.col];
-            move.Pos = square.gameObject.transform.position;
-
-            if (square.transform.childCount > 0)
-            {
-                move.Attacker = square.transform.GetChild(0).GetComponent<Piece>();
-            }
-            return move;
-        }
-
-        public static Move CheckMoveDownLeft(Game game, Structs.Coordinate coordinate)
-        {
-            if (coordinate.row + 1 > 7 || coordinate.col - 1 < 0) { return null; }
-
-            Move move = new Move();
-            move.Coord.col = coordinate.col - 1;
-            move.Coord.row = coordinate.row + 1;
-            move.Dir = Move.Direction.DOWN_LEFT;
-            move.FromDir = Move.Direction.UP_RIGHT;
-
-            //var square = game.Squares[coordinate.y + 1][coordinate.x - 1];
-            var square = game.Squares[move.Coord.row][move.Coord.col];
-            move.Pos = square.gameObject.transform.position;
-
-            if (square.transform.childCount > 0)
-            {
-                move.Attacker = square.transform.GetChild(0).GetComponent<Piece>();
-            }
-            return move;
-        }
-
-        public static Move CheckMoveDownRight(Game game, Structs.Coordinate coordinate)
-        {
-            if (coordinate.row + 1 > 7 || coordinate.col + 1 > 7) { return null; }
-
-            Move move = new Move();
-            move.Coord.col = coordinate.col + 1;
-            move.Coord.row = coordinate.row + 1;
-            move.Dir = Move.Direction.DOWN_RIGHT;
-            move.FromDir = Move.Direction.UP_LEFT;
-
-            //var square = game.Squares[coordinate.y + 1][coordinate.x + 1];
-            var square = game.Squares[move.Coord.row][move.Coord.col];
-            move.Pos = square.gameObject.transform.position;
-
-            if (square.transform.childCount > 0)
-            {
-                move.Attacker = square.transform.GetChild(0).GetComponent<Piece>();
-            }
-            return move;
-        }
-
-        public static Move CheckMoveLeft(Game game, Structs.Coordinate coordinate)
-        {
-            if (coordinate.col - 1 < 0) { return null; }
-
-            Move move = new Move();
-            move.Coord.col = coordinate.col - 1;
-            move.Coord.row = coordinate.row;
-            move.Dir = Move.Direction.LEFT;
-            move.FromDir = Move.Direction.RIGHT;
-
-            //var square = game.Squares[coordinate.y][coordinate.x - 1];
-            var square = game.Squares[move.Coord.row][move.Coord.col];
-            move.Pos = square.gameObject.transform.position;
-
-            if (square.transform.childCount > 0)
-            {
-                move.Attacker = square.transform.GetChild(0).GetComponent<Piece>();
-            }
-            return move;
-        }
-
-        public static Move CheckMoveRight(Game game, Structs.Coordinate coordinate)
-        {
-            if (coordinate.col + 1 > 7) { return null; }
-
-            Move move = new Move();
-            move.Coord.col = coordinate.col + 1;
-            move.Coord.row = coordinate.row;
-            move.Dir = Move.Direction.RIGHT;
-            move.FromDir = Move.Direction.LEFT;
-
-            //var square = game.Squares[coordinate.y][coordinate.x + 1];
-            var square = game.Squares[move.Coord.row][move.Coord.col];
-            move.Pos = square.gameObject.transform.position;
-
-            if (square.transform.childCount > 0)
-            {
-                move.Attacker = square.transform.GetChild(0).GetComponent<Piece>();
-            }
-            return move;
-        }
-
-        public static Move CheckMoveUp(Game game, Structs.Coordinate coordinate)
-        {
-            if (coordinate.row - 1 < 0) { return null; }
-
-            Move move = new Move();
-            move.Coord.col = coordinate.col;
-            move.Coord.row = coordinate.row - 1;
-            move.Dir = Move.Direction.UP;
-            move.FromDir = Move.Direction.DOWN;
-
-            //var square = game.Squares[coordinate.y - 1][coordinate.x];
-            var square = game.Squares[move.Coord.row][move.Coord.col];
-            move.Pos = square.gameObject.transform.position;
-
-            if (square.transform.childCount > 0)
-            {
-                move.Attacker = square.transform.GetChild(0).GetComponent<Piece>();
-            }
-            return move;
-        }
-
-        public static Move CheckMoveUpLeft(Game game, Structs.Coordinate coordinate)
-        {
-            if (coordinate.row - 1 < 0 || coordinate.col - 1 < 0) { return null; }
-
-            Move move = new Move();
-            move.Coord.col = coordinate.col - 1;
-            move.Coord.row = coordinate.row - 1;
-            move.Dir = Move.Direction.UP_LEFT;
-            move.FromDir = Move.Direction.DOWN_RIGHT;
-
-            //var square = game.Squares[coordinate.y - 1][coordinate.x - 1];
-            var square = game.Squares[move.Coord.row][move.Coord.col];
-            move.Pos = square.gameObject.transform.position;
-
-            if (square.transform.childCount > 0)
-            {
-                move.Attacker = square.transform.GetChild(0).GetComponent<Piece>();
-            }
-            return move;
-        }
-
-        public static Move CheckMoveUpRight(Game game, Structs.Coordinate coordinate)
-        {
-            if (coordinate.row - 1 < 0 || coordinate.col + 1 > 7) { return null; }
-
-            Move move = new Move();
-            move.Coord.col = coordinate.col + 1;
-            move.Coord.row = coordinate.row - 1;
-            move.Dir = Move.Direction.UP_RIGHT;
-            move.FromDir = Move.Direction.DOWN_LEFT;
-
-            //var square = game.Squares[coordinate.y - 1][coordinate.x + 1];
-            var square = game.Squares[move.Coord.row][move.Coord.col];
-            move.Pos = square.gameObject.transform.position;
-
-            if (square.transform.childCount > 0)
-            {
-                move.Attacker = square.transform.GetChild(0).GetComponent<Piece>();
-            }
-            return move;
-        }
-
+    {        
         /// <summary>
         /// Takes multidimensional array of GameObjects and returns the index in an n:n format.
         /// </summary
@@ -210,17 +42,17 @@ namespace Assets.Scripts
         /// <summary>
         /// Converts string version of Coordinate to Scructs.Coordinate
         /// </summary>
-        /// <param name="coordindate">Coordinate of piece as a string</param>
+        /// <param name="coordinate">Coordinate of piece as a string</param>
         /// <returns>Scruts.Coordinate version of coordinate</returns>
-        public static Structs.Coordinate GetCoordinate(string coordindate)
+        public static Structs.Coordinate GetCoordinate(string coordinate)
         {
             Structs.Coordinate co = new Structs.Coordinate();
 
             try
             {
-                if (coordindate != "")
+                if (coordinate != "")
                 {
-                    string[] vals = coordindate.Split(':');
+                    string[] vals = coordinate.Split(':');
                     int x = int.Parse(vals[0]);
                     int y = int.Parse(vals[1]);
                     co.col = x;

@@ -676,90 +676,52 @@ namespace Assets.Scripts
         // ****************************************************
         // Private Methods
         // ****************************************************
+        private Move CheckMove(Structs.Coordinate currCoordinate, Move.Direction direction)
+        {
+            Structs.Coordinate newCoordinate = currCoordinate + Move.Offsets[(int)direction];
+
+            if (!newCoordinate.IsValid())
+            {
+                return null;
+            }
+
+            GameObject square = gameRef.GetSquare(newCoordinate);
+            Vector3 squarePos = square.gameObject.transform.position;
+            Piece attacker = null;
+
+            if (square.transform.childCount > 0)
+            {
+                attacker = square.transform.GetChild(0).GetComponent<Piece>();
+            }
+
+            return new Move(squarePos, newCoordinate, direction, attacker);
+        }
+
+        private List<Move> GetMoves(Move.Direction[] directionArray)
+        {
+            Structs.Coordinate testCoord = (PreviewMode == true) ? PreviewCoord : Coord;
+            List<Move> moves = new List<Move>();
+
+            for (int dirIndex = 1; dirIndex < directionArray.Length; ++dirIndex)
+            {
+                Move newMove = CheckMove(testCoord, directionArray[dirIndex]);
+                if (newMove != null)
+                {
+                    moves.Add(newMove);
+                }
+            }
+
+            return moves;
+        }
+
         private List<Move> GetMovesAllDirections()
         {
-            List<Move> moves = new List<Move>();
-            //Debug.Log("Move: " + Coord.row + " | " + Coord.col);
-            
-            Move moveDown = PreviewMode == true ? Utils.CheckMoveDown(gameRef, PreviewCoord) : Utils.CheckMoveDown(gameRef, Coord);
-            if (moveDown != null)
-            {
-                moves.Add(moveDown);
-            }
-            
-            Move moveDownLeft = PreviewMode == true ? Utils.CheckMoveDownLeft(gameRef, PreviewCoord) : Utils.CheckMoveDownLeft(gameRef, Coord); 
-            if (moveDownLeft != null)
-            {
-                moves.Add(moveDownLeft);
-            }
-            
-            Move moveLeft = PreviewMode == true ? Utils.CheckMoveLeft(gameRef, PreviewCoord) : Utils.CheckMoveLeft(gameRef, Coord);
-            if (moveLeft != null)
-            {
-                moves.Add(moveLeft);
-            }
-            
-            Move moveUpLeft = PreviewMode == true ? Utils.CheckMoveUpLeft(gameRef, PreviewCoord) : Utils.CheckMoveUpLeft(gameRef, Coord);
-            if (moveUpLeft != null)
-            {
-                moves.Add(moveUpLeft);
-            }
-            
-            Move moveUp = PreviewMode == true ? Utils.CheckMoveUp(gameRef, PreviewCoord) : Utils.CheckMoveUp(gameRef, Coord);
-            if (moveUp != null)
-            {
-                moves.Add(moveUp);
-            }
-            
-            Move moveUpRight = PreviewMode == true ? Utils.CheckMoveUpRight(gameRef, PreviewCoord) : Utils.CheckMoveUpRight(gameRef, Coord);
-            if (moveUpRight != null)
-            {
-                moves.Add(moveUpRight);
-            }
-            
-            Move moveRight = PreviewMode == true ? Utils.CheckMoveRight(gameRef, PreviewCoord) : Utils.CheckMoveRight(gameRef, Coord);
-            if (moveRight != null)
-            {
-                moves.Add(moveRight);
-            }
-            
-            Move moveDownRight = PreviewMode == true ? Utils.CheckMoveDownRight(gameRef, PreviewCoord) : Utils.CheckMoveDownRight(gameRef, Coord);
-            if (moveDownRight != null)
-            {
-                moves.Add(moveDownRight);
-            }
-            return moves;
+            return GetMoves(Move.Directions_All);
         }
 
         private List<Move> GetMovesNoDiagonals()
         {
-            List<Move> moves = new List<Move>();
-
-            Move moveDown = PreviewMode == true ? Utils.CheckMoveDown(gameRef, PreviewCoord) : Utils.CheckMoveDown(gameRef, Coord);
-            if (moveDown != null)
-            {
-                moves.Add(moveDown);
-            }
-            
-            Move moveLeft = PreviewMode == true ? Utils.CheckMoveLeft(gameRef, PreviewCoord) : Utils.CheckMoveLeft(gameRef, Coord);
-            if (moveLeft != null)
-            {
-                moves.Add(moveLeft);
-            }
-
-            Move moveUp = PreviewMode == true ? Utils.CheckMoveUp(gameRef, PreviewCoord) : Utils.CheckMoveUp(gameRef, Coord);
-            if (moveUp != null)
-            {
-                moves.Add(moveUp);
-            }
-            
-            Move moveRight = PreviewMode == true ? Utils.CheckMoveRight(gameRef, PreviewCoord) : Utils.CheckMoveRight(gameRef, Coord);
-            if (moveRight != null)
-            {
-                moves.Add(moveRight);
-            }
-            
-            return moves;
+            return GetMoves(Move.Directions_NoDiagonals);
         }
 
         private void HandlePieceSelectionSound()
@@ -777,7 +739,6 @@ namespace Assets.Scripts
                 }
             }
         }
-
 
         private void HandleSelect()
         {

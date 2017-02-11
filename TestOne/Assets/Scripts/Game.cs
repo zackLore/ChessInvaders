@@ -171,8 +171,8 @@ namespace Assets.Scripts
                             temp.gameRef = this;
                             temp.Owner = Player2;
                             temp.SetPieceType(temp.PieceType);
-                            temp.Coord = new Structs.Coordinate { col = col, row = row };
-                            temp.StartSpot = new Move() { Pos = startPos, Coord = temp.Coord, Attacker = temp };
+                            temp.Coord = new Structs.Coordinate(row, col);
+                            temp.StartSpot = new Move(startPos, temp.Coord, temp);
                             Pieces.Add(p);
                             break;
                         case 6:
@@ -181,8 +181,8 @@ namespace Assets.Scripts
                             temp = p.GetComponent<Piece>();
                             temp.gameRef = this;
                             temp.Owner = Player2;
-                            temp.Coord = new Structs.Coordinate { col = col, row = row };
-                            temp.StartSpot = new Move() { Pos = startPos, Coord = temp.Coord, Attacker = temp };
+                            temp.Coord = new Structs.Coordinate(row, col);
+                            temp.StartSpot = new Move(startPos, temp.Coord, temp);
                             Pieces.Add(p);
                             break;
                         case 1:
@@ -190,8 +190,8 @@ namespace Assets.Scripts
                             temp = p.GetComponent<Piece>();
                             temp.gameRef = this;
                             temp.Owner = Player1;
-                            temp.Coord = new Structs.Coordinate { col = col, row = row };
-                            temp.StartSpot = new Move() { Pos = startPos, Coord = temp.Coord, Attacker = temp };
+                            temp.Coord = new Structs.Coordinate(row, col);
+                            temp.StartSpot = new Move(startPos, temp.Coord, temp);
                             Pieces.Add(p);
                             break;
                         case 0:
@@ -199,8 +199,8 @@ namespace Assets.Scripts
                             temp = p.GetComponent<Piece>();
                             temp.gameRef = this;
                             temp.Owner = Player1;
-                            temp.Coord = new Structs.Coordinate { col = col, row = row };
-                            temp.StartSpot = new Move() { Pos = startPos, Coord = temp.Coord, Attacker = temp };
+                            temp.Coord = new Structs.Coordinate(row, col);
+                            temp.StartSpot = new Move(startPos, temp.Coord, temp);
                             Pieces.Add(p);
                             break;
                     }
@@ -290,6 +290,16 @@ namespace Assets.Scripts
         // ****************************************************
         // Public Methods
         // ****************************************************
+        public GameObject GetSquare(Structs.Coordinate coord)
+        {
+            return Squares[coord.row][coord.col];
+        }
+
+        public GameObject GetBackgroundSquare(Structs.Coordinate coord)
+        {
+            return BackgroundSquares[coord.row][coord.col];
+        }
+
         public void BeginAttack()
         {
             CurrentAttackPiece.GetComponent<AttackSquare>().DoubleClick();
@@ -962,15 +972,11 @@ namespace Assets.Scripts
                     Vector3 diff = mousePos - square.transform.position;
                     float centerSize = HalfWidth / 2f;
 
-                    if (Mathf.Abs(diff.x) > centerSize || Mathf.Abs(diff.y) > centerSize) { return; }
-
-                    //Set the from
-                    validMove.FromCoord = SelectedPiece.PreviewMoves.Count > 0 ?
-                                            SelectedPiece.PreviewMoves.Peek().Coord :
-                                            SelectedPiece.Coord;
-                    validMove.FromPos = SelectedPiece.PreviewMoves.Count > 0 ?
-                                            SelectedPiece.PreviewMoves.Peek().Pos :
-                                            SelectedPiece.CurrentPosition;
+                    if (Mathf.Abs(diff.x) > centerSize || Mathf.Abs(diff.y) > centerSize)
+                    {
+                        return;
+                    }
+                    
                     SelectedPiece.CurrentMove = validMove;
 
                     //Set Move Dot or Attack Dot

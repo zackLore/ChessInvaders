@@ -59,10 +59,7 @@ namespace Assets.Scripts
 
         private void HandleMove()
         {
-            //if (GameRef.SelectedPiece.Moving == true)
-            {
-                GameRef.SetMovePiece();
-            }
+            GameRef.SetMovePiece();
         }
 
         private void HandleAttack()
