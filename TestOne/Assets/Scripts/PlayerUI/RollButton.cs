@@ -42,9 +42,10 @@ namespace Assets.Scripts
         {
             if (currentPiece != null)
             {
+                Die die = currentPiece.MoveDice.DiceCollection[0];
+
                 for (int i = 1; i < currentPiece.MoveLimit * 3; ++i)
                 {
-                    Die die = currentPiece.MoveDice.DiceCollection[0];
                     int randomNumber = UnityEngine.Random.Range(die.UpperLimit, die.LowerLimit);
                     label.text = randomNumber.ToString();
                     yield return new WaitForSeconds(0.05f);
