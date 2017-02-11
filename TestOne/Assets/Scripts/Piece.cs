@@ -532,7 +532,7 @@ namespace Assets.Scripts
             {
                 foreach (Move move in AvailableMoves)
                 {
-                    var square = gameRef.Squares[move.Coord.row][move.Coord.col];
+                    var square = gameRef.GetSquare(move.Coord);
                     if (square != null)
                     {
                         if (move.Attacker != null)
@@ -702,7 +702,7 @@ namespace Assets.Scripts
             Structs.Coordinate testCoord = (PreviewMode == true) ? PreviewCoord : Coord;
             List<Move> moves = new List<Move>();
 
-            for (int dirIndex = 1; dirIndex < directionArray.Length; ++dirIndex)
+            for (int dirIndex = 0; dirIndex < directionArray.Length; ++dirIndex)
             {
                 Move newMove = CheckMove(testCoord, directionArray[dirIndex]);
                 if (newMove != null)
@@ -868,20 +868,6 @@ namespace Assets.Scripts
                     HandleAttack();
                     break;
             }
-
-                //if (GameRef.SelectedPiece != null && this.Owner == GameRef.CurrentTurn)
-                //{
-                //    GameRef.Highlight.transform.position = GameRef.SelectedPiece.transform.position;
-                //    GameRef.Highlight.SetActive(true);
-
-                //    //GameRef.RollMenu.gameObject.SetActive(true);
-                //    //GameRef.rollMenuLabel.text = GameRef.SelectedPiece.PieceType.ToString();
-                //    //GameRef.rollMenuLabel.text += "\n" + GameRef.SelectedPiece.Coord.row + " | " + GameRef.SelectedPiece.Coord.col;
-                //}
-                //else
-                //{
-                //    GameRef.Highlight.SetActive(false);
-                //}
         }
 
         public override void LongPressUp()
