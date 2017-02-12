@@ -8,7 +8,7 @@ using UnityEngine.EventSystems;
 
 namespace Assets.Scripts
 {
-    class GameSquare : BaseBehavior
+    public class GameSquare : BaseSquare
     {
         public bool IsActive = true;
         public bool CanMoveTo = false;
@@ -16,33 +16,11 @@ namespace Assets.Scripts
         public bool CanAttack = false;
 
         public TimeSpan? StartTime = null;
-        //private bool CanMove = false;
 
         void Start()
         {
             GameRef = GameObject.Find("Game").GetComponent<Game>();
             InitClickTimes();
-        }
-        
-        public override void OnPointerEnter(PointerEventData eventData)
-        {
-            CanMoveTo = true;//allow move to this square
-        }
-
-        public override void OnPointerUp(PointerEventData eventData)
-        {
-            GameRef.CurrentSquare = this.gameObject;
-            DetectClicks();
-        }
-
-        public override void OnPointerDown(PointerEventData eventData)
-        {
-            //DetectClicks(false);
-        }
-
-        public override void OnPointerExit(PointerEventData eventData)
-        {
-            CanRemove = true;
         }
 
         // ****************************************************
@@ -70,6 +48,28 @@ namespace Assets.Scripts
         // ****************************************************
         // Behavior Implementation
         // ****************************************************
+
+        public override void OnPointerEnter(PointerEventData eventData)
+        {
+            CanMoveTo = true;//allow move to this square
+        }
+
+        public override void OnPointerUp(PointerEventData eventData)
+        {
+            GameRef.CurrentSquare = this.gameObject;
+            DetectClicks();
+        }
+
+        public override void OnPointerDown(PointerEventData eventData)
+        {
+            //DetectClicks(false);
+        }
+
+        public override void OnPointerExit(PointerEventData eventData)
+        {
+            CanRemove = true;
+        }
+
         public override void LeftClickDown()
         {
             //Debug.Log(this + " Left Click Down");

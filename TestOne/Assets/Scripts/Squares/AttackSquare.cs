@@ -8,10 +8,8 @@ using UnityEngine.EventSystems;
 
 namespace Assets.Scripts
 {
-    class AttackSquare : BaseBehavior
+    class AttackSquare : BaseSquare
     {
-        GameSquare square = null;
-
         void Awake()
         {
             GameRef = GameObject.Find("Game").GetComponent<Game>();

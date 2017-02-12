@@ -110,7 +110,7 @@ namespace Assets.Scripts
 
             CurrentPlayerActionMode = PlayerActionMode.kSelect;
             
-            Square = (GameObject)Instantiate(Resources.Load(@"Prefabs/GameSquare"), Vector3.zero, Quaternion.identity);
+            Square = (GameObject)Instantiate(Resources.Load(@"Prefabs/Squares/GameSquare"), Vector3.zero, Quaternion.identity);
             SquareHeight = Square.gameObject.GetComponent<SpriteRenderer>().sprite.rect.height;
             SquareWidth = Square.gameObject.GetComponent<SpriteRenderer>().sprite.rect.width;
             HalfHeight = SquareHeight / 2;
@@ -145,13 +145,13 @@ namespace Assets.Scripts
                 BackgroundSquares[row] = new GameObject[Consts.colCount];
                 for (int col = 0; col < Consts.colCount; col++)
                 {
-                    GameObject newSquare = (GameObject)Instantiate(Resources.Load(@"Prefabs/GameSquare"), Vector3.zero, Quaternion.identity);
+                    GameObject newSquare = (GameObject)Instantiate(Resources.Load(@"Prefabs/Squares/GameSquare"), Vector3.zero, Quaternion.identity);
                     newSquare.transform.parent = Board.transform;
                     newSquare.transform.position = new Vector3(startPos.x, startPos.y, Consts.zPos_GameSquare);
                     newSquare.name = "Square[" + row + "," + col + "]";
                     Squares[row][col] = newSquare;
 
-                    GameObject newBackgroundSquare = (GameObject)Instantiate(Resources.Load(@"Prefabs/BackgroundSquare"), Vector3.zero, Quaternion.identity);
+                    GameObject newBackgroundSquare = (GameObject)Instantiate(Resources.Load(@"Prefabs/Squares/BackgroundSquare"), Vector3.zero, Quaternion.identity);
                     newBackgroundSquare.transform.parent = Board.transform;
                     newBackgroundSquare.transform.position = new Vector3(startPos.x, startPos.y, Consts.zPos_BackgroundSquare);
                     newBackgroundSquare.name = "BG_Square[" + row + "," + col + "]";
@@ -809,7 +809,7 @@ namespace Assets.Scripts
             if (SelectedPiece.PieceType != Piece.TypeOfPiece.Queen)
                 SelectedPiece.MovesRemaining--;
             square.GetComponent<GameSquare>().CanMoveTo = false;
-            GameObject attackSquare = (GameObject)Instantiate(Resources.Load(@"Prefabs/AttackSquare"),
+            GameObject attackSquare = (GameObject)Instantiate(Resources.Load(@"Prefabs/Squares/AttackSquare"),
                                                                                         Vector3.zero,
                                                                                         Quaternion.identity);
             attackSquare.transform.parent = square.transform;
@@ -913,7 +913,7 @@ namespace Assets.Scripts
                 Move validMove = null;
 
                 //Check to see if square is valid move
-                foreach (Move move in SelectedPiece.AvailableMoves.Where(x => x.PieceAtPosition == null || x.PieceAtPosition.Owner != CurrentTurn))
+                foreach (Move move in SelectedPiece.AvailableMoves.Where(x => ((x.PieceAtPosition == null) || (x.PieceAtPosition.IsOwnedByCurrentTurnPlayer() == false)) ))
                 {
                     validMove = GetValidMove(move);
                     if (validMove != null)
@@ -1203,6 +1203,26 @@ namespace Assets.Scripts
             Physics.Raycast(ray, out hit);
 
             return temp;
+        }
+
+        private GameObject InstantiateSquare(string prefabPathname, string squareName, Vector3 startPos, float zPos, int row, int col)
+        {
+            GameObject newSquare = (GameObject)Instantiate(Resources.Load(prefabPathname), Vector3.zero, Quaternion.identity);
+            newSquare.transform.parent = Board.transform;
+            newSquare.transform.position = new Vector3(startPos.x, startPos.y, zPos);
+            newSquare.name = squareName + "[" + row + "," + col + "]";
+            //newSquare.Coord = new Coord(row, col);
+            return newSquare;
+        }
+
+        private void InstantiateGameSquare(Vector3 startPos, int row, int col)
+        {
+            Squares[row][col] = InstantiateSquare(@"Prefabs/Squares/GameSquare", "Square", startPos, Consts.zPos_GameSquare, row, col);
+        }
+
+        private void InstantiateBackgroundGameSquare(Vector3 startPos, int row, int col)
+        {
+            BackgroundSquares[row][col] = InstantiateSquare(@"Prefabs/Squares/BackgroundSquare", "BG_Square", startPos, Consts.zPos_BackgroundSquare, row, col);
         }
 
         private bool SquareContainsAttackSquare(GameObject square)
