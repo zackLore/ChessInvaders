@@ -789,7 +789,7 @@ namespace Assets.Scripts
             {
                 GameRef.DeselectPiece(GameRef.SelectedPiece);
                 GameRef.CurrentPlayerActionMode = PlayerActionMode.kSelect;
-                GameRef.SelectPiece(this);
+                HandleSelect();
             }
         }
 
