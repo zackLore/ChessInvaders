@@ -222,7 +222,7 @@ namespace Assets.Scripts
                             
                             ResetValues();
                             //gameRef.MoveCountLabel.text = gameRef.SelectedPiece.CurrentMoveCount.ToString();
-                            if (gameRef.SelectedPiece.CurrentMove != null && gameRef.SelectedPiece.CurrentMove.Attacker != null)
+                            if (gameRef.SelectedPiece.CurrentMove != null && gameRef.SelectedPiece.CurrentMove.PieceAtPosition != null)
                             {
                                 if (gameRef.AttackMenu == null)
                                 {
@@ -239,7 +239,7 @@ namespace Assets.Scripts
                                 gameRef.CurrentPlayerActionMode = PlayerActionMode.kAttack;
 
                                 if (PieceType == TypeOfPiece.Bomb || 
-                                    CurrentMove != null && CurrentMove.Attacker != null && CurrentMove.Attacker.PieceType == TypeOfPiece.Bomb)
+                                    CurrentMove != null && CurrentMove.PieceAtPosition != null && CurrentMove.PieceAtPosition.PieceType == TypeOfPiece.Bomb)
                                 {
                                     //Bomb Blows up!
                                     GameRef.CompleteBombAttack();
@@ -535,13 +535,13 @@ namespace Assets.Scripts
                     var square = gameRef.GetSquare(move.Coord);
                     if (square != null)
                     {
-                        if (move.Attacker != null)
+                        if (move.PieceAtPosition != null)
                         {
-                            if (move.Attacker.Owner.PlayerNumber != gameRef.CurrentTurn.PlayerNumber)
+                            if (move.PieceAtPosition.Owner.PlayerNumber != gameRef.CurrentTurn.PlayerNumber)
                             {
                                 SetAttackHighlight(move);
                             }
-                            else if (move.Attacker.Owner.PlayerNumber == gameRef.CurrentTurn.PlayerNumber)
+                            else if (move.PieceAtPosition.Owner.PlayerNumber == gameRef.CurrentTurn.PlayerNumber)
                             {
                                 SetFriendlyHighlight(move);
                             }

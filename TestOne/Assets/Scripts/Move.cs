@@ -67,27 +67,27 @@ namespace Assets.Scripts
         public Direction Dir;
         public GameObject Owner = null;
 
-        private Piece _attacker;
-        public Piece Attacker
+        private Piece _pieceAtPosition;
+        public Piece PieceAtPosition
         {
-            get { return _attacker; }
-            set { _attacker = value; }
+            get { return _pieceAtPosition; }
+            set { _pieceAtPosition = value; }
         }
 
-        public Move(Vector3 pos, Structs.Coordinate coord, Direction dir, Piece attacker)
+        public Move(Vector3 pos, Structs.Coordinate coord, Direction dir, Piece pieceAtPosition)
         {
             Pos = pos;
             Coord = coord;
             Dir = dir;
-            Attacker = attacker;
+            PieceAtPosition = pieceAtPosition;
         }
 
-        public Move(Vector3 pos, Structs.Coordinate coord, Piece attacker)
+        public Move(Vector3 pos, Structs.Coordinate coord, Piece pieceAtPosition)
         {
             Pos = pos;
             Coord = coord;
             Dir = Move.Direction.NONE;
-            Attacker = attacker;
+            PieceAtPosition = pieceAtPosition;
         }
     }
 }

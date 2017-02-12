@@ -395,7 +395,7 @@ namespace Assets.Scripts
 
         public void CompleteBombAttack()
         {
-            BattleLoser = SelectedPiece.CurrentMove.Attacker;
+            BattleLoser = SelectedPiece.CurrentMove.PieceAtPosition;
             //** Check for Win/Loss
             if (BattleLoser.PieceType == Piece.TypeOfPiece.King)
             {
@@ -916,7 +916,7 @@ namespace Assets.Scripts
             while (p1Attack == p2Defend)
             {
                 p1Attack = SelectedPiece.AttackDice.RollDice();
-                p2Defend = SelectedPiece.CurrentMove.Attacker.DefendDice.RollDice();
+                p2Defend = SelectedPiece.CurrentMove.PieceAtPosition.DefendDice.RollDice();
             }
 
             GameObject p1RollLabel = AttackMenu.transform.Find("AttackPlayerOneValue").gameObject;
@@ -928,7 +928,7 @@ namespace Assets.Scripts
             //Set Loser Piece
             if (p1Attack > p2Defend)
             {
-                BattleLoser = SelectedPiece.CurrentMove.Attacker;
+                BattleLoser = SelectedPiece.CurrentMove.PieceAtPosition;
             }
             else
             {
@@ -953,7 +953,7 @@ namespace Assets.Scripts
                 Move validMove = null;
 
                 //Check to see if square is valid move
-                foreach (Move move in SelectedPiece.AvailableMoves.Where(x => x.Attacker == null || x.Attacker.Owner != CurrentTurn))
+                foreach (Move move in SelectedPiece.AvailableMoves.Where(x => x.PieceAtPosition == null || x.PieceAtPosition.Owner != CurrentTurn))
                 {
                     validMove = GetValidMove(move);
                     if (validMove != null)
@@ -1034,7 +1034,7 @@ namespace Assets.Scripts
             {
                 try
                 {
-                    if (SelectedPiece == null || SelectedPiece.CurrentMove == null || SelectedPiece.CurrentMove.Attacker == null) { return; }
+                    if (SelectedPiece == null || SelectedPiece.CurrentMove == null || SelectedPiece.CurrentMove.PieceAtPosition == null) { return; }
 
                     PreviewMenu.gameObject.SetActive(false);
 
@@ -1056,14 +1056,14 @@ namespace Assets.Scripts
                     GameObject pTwoLabel = AttackMenu.transform.Find("AttackPlayerTwoLabel").gameObject;
                     if (pTwoLabel != null)
                     {
-                        pTwoLabel.GetComponent<Text>().text = (SelectedPiece.GetComponent<Piece>()).CurrentMove.Attacker.PieceType.ToString();
+                        pTwoLabel.GetComponent<Text>().text = (SelectedPiece.GetComponent<Piece>()).CurrentMove.PieceAtPosition.PieceType.ToString();
                     }
 
                     var p1Image = AttackMenu.transform.Find("AttackPlayerOneImage");
                     p1Image.GetComponent<SpriteRenderer>().sprite = SelectedPiece.GetComponent<SpriteRenderer>().sprite;
 
                     var p2Image = AttackMenu.transform.Find("AttackPlayerTwoImage");
-                    p2Image.GetComponent<SpriteRenderer>().sprite = SelectedPiece.CurrentMove.Attacker.gameObject.GetComponent<SpriteRenderer>().sprite;
+                    p2Image.GetComponent<SpriteRenderer>().sprite = SelectedPiece.CurrentMove.PieceAtPosition.gameObject.GetComponent<SpriteRenderer>().sprite;
 
                     AttackMenu.gameObject.SetActive(true);
                 }
