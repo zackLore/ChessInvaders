@@ -24,6 +24,67 @@ namespace Assets.Scripts
         }
 
         // ****************************************************
+        // Public Methods
+        // ****************************************************
+
+        public bool ContainsEnemyPiece(Game gameRef)
+        {
+            if (gameObject.transform.childCount <= 0)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < gameObject.transform.childCount; i++)
+            {
+                //Debug.Log(square.transform.GetChild(i));
+                try
+                {
+                    Piece temp = gameObject.transform.GetChild(i).GetComponent<Piece>();
+                    if (temp != null)
+                    {
+                        if (temp.Owner != gameRef.CurrentTurn)
+                        {
+                            //Debug.Log("EnemyPiece temp: " + temp);
+                            return true;
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        public bool ContainsPreviewPiece()
+        {
+            if (gameObject.transform.childCount <= 0)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < gameObject.transform.childCount; i++)
+            {
+                //Debug.Log(square.transform.GetChild(i));
+                try
+                {
+                    PreviewPiece temp = gameObject.transform.GetChild(i).GetComponent<PreviewPiece>();
+                    if (temp != null)
+                    {
+                        //Debug.Log("PreviewPiece temp: " + temp);
+                        return true;
+                    }
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        // ****************************************************
         // Private Methods
         // ****************************************************
 

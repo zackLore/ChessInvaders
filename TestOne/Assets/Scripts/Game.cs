@@ -41,7 +41,6 @@ namespace Assets.Scripts
         public Piece BattleLoser;
 
         public GameObject Board;
-        public GameObject Square;
         public GameObject Highlight;
         public GameObject PlaceHolder;
         public GameObject MovePiece;
@@ -60,7 +59,7 @@ namespace Assets.Scripts
         public float MoveSpeed = 1.5f;
         private bool MoveComplete = false;
         
-        public GameObject[][] Squares = new GameObject[8][];
+        public GameSquare[][] GameSquares = new GameSquare[Consts.rowCount][];
         public BackgroundSquare[][] BackgroundSquares = new BackgroundSquare[Consts.rowCount][];
 
         public Move LastMove;
@@ -109,10 +108,10 @@ namespace Assets.Scripts
             CurrentTurn = Player1;
 
             CurrentPlayerActionMode = PlayerActionMode.kSelect;
-            
-            Square = (GameObject)Instantiate(Resources.Load(@"Prefabs/Squares/GameSquare"), Vector3.zero, Quaternion.identity);
-            SquareHeight = Square.gameObject.GetComponent<SpriteRenderer>().sprite.rect.height;
-            SquareWidth = Square.gameObject.GetComponent<SpriteRenderer>().sprite.rect.width;
+
+            GameSquare testSquare = InstantiateGameSquare(new Vector3(0,0,0), 0, 0);
+            SquareHeight = testSquare.spriteRenderer.sprite.rect.height;
+            SquareWidth = testSquare.spriteRenderer.sprite.rect.width;
             HalfHeight = SquareHeight / 2;
             HalfWidth = SquareWidth / 2;
 
@@ -126,53 +125,44 @@ namespace Assets.Scripts
             rollMenuLabel = texts.Where(x => x.name == "RollMenuLabel").FirstOrDefault();
             //MoveCountLabel = texts.Where(x => x.name == "MoveCountLabel").FirstOrDefault();
             DirectionLabel = texts.Where(x => x.name == "DirectionLabel").FirstOrDefault();
-
             //RollMenu.gameObject.SetActive(true);
-
             //MoveCountLabel = PreviewMenu.transform.Find("MoveCountLabel").GetComponent<Text>();
             
-            float height = Square.gameObject.GetComponent<SpriteRenderer>().sprite.rect.height;
-            float width = Square.gameObject.GetComponent<SpriteRenderer>().sprite.rect.width;
-            
             Vector3 startPos = new Vector3();
-            startPos.x = -width * 4;//half of the total width (4 squares)
-            startPos.y = height * 4;
+            startPos.x = -SquareWidth * 4;  //  half of the total width (4 squares)
+            startPos.y = SquareHeight * 4;
             startPos.z = Consts.zPos_Piece;
                         
             for (int row = 0; row < Consts.rowCount; row++)
             {
-                Squares[row] = new GameObject[Consts.colCount];
+                GameSquares[row] = new GameSquare[Consts.colCount];
                 BackgroundSquares[row] = new BackgroundSquare[Consts.colCount];
+
                 for (int col = 0; col < Consts.colCount; col++)
                 {
-                    GameObject newSquare = (GameObject)Instantiate(Resources.Load(@"Prefabs/Squares/GameSquare"), Vector3.zero, Quaternion.identity);
-                    newSquare.transform.parent = Board.transform;
-                    newSquare.transform.position = new Vector3(startPos.x, startPos.y, Consts.zPos_GameSquare);
-                    newSquare.name = "Square[" + row + "," + col + "]";
-                    Squares[row][col] = newSquare;
-
+                    GameSquares[row][col] = InstantiateGameSquare(startPos, row, col);
                     BackgroundSquares[row][col] = InstantiateBackgroundGameSquare(startPos, row, col);
 
                     switch (row)
                     {
                         case 0:
                         case 1:
-                            InitializePiece(Player1, newSquare, row, col, startPos);
+                            InitializePiece(Player1, GameSquares[row][col], row, col, startPos);
                             break;
                         case 6:
                         case 7:
-                            InitializePiece(Player2, newSquare, row, col, startPos);
+                            InitializePiece(Player2, GameSquares[row][col], row, col, startPos);
                             break;
                     }
                     
-                    startPos.x = startPos.x + width;
+                    startPos.x = startPos.x + SquareWidth;
                 }
 
-                startPos.x = -width * 4;
-                startPos.y = startPos.y - height;
+                startPos.x = -SquareWidth * 4;
+                startPos.y = startPos.y - SquareHeight;
             }
             
-            Square.SetActive(false);//TODO: Use prefab instead of set game objects
+            Destroy(testSquare);
             RollMenu.transform.Find("RollMenuBackground").GetComponent<Image>().color = CurrentTurn.PlayerNumber == 1 ? UnityEngine.Color.green : UnityEngine.Color.magenta;
 
             var buttons = PreviewMenu.GetComponentsInChildren<Button>();
@@ -246,9 +236,9 @@ namespace Assets.Scripts
         // ****************************************************
         // Public Methods
         // ****************************************************
-        public GameObject GetSquare(Structs.Coordinate coord)
+        public GameSquare GetGameSquare(Structs.Coordinate coord)
         {
-            return Squares[coord.row][coord.col];
+            return GameSquares[coord.row][coord.col];
         }
 
         public BackgroundSquare GetBackgroundSquare(Structs.Coordinate coord)
@@ -411,7 +401,7 @@ namespace Assets.Scripts
             //Move lastMove = SelectedPiece.PreviewMoves.Peek();
             Move lastMove = SelectedPiece.PreviewMoves.ElementAt(SelectedPiece.PreviewMoves.Count - 2);
 
-            Vector3 mousePos = Squares[lastMove.Coord.row][lastMove.Coord.col].transform.position;
+            Vector3 mousePos = GetGameSquare(lastMove.Coord).gameObject.transform.position;
             Vector3 last = LastMousePos - lastMove.Pos;
             Vector3 curr = mousePos - lastMove.Pos;
 
@@ -532,14 +522,16 @@ namespace Assets.Scripts
         {
             Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Move validMove = null;
-            GameObject s = Squares[move.Coord.row][move.Coord.col];
-            if (s == null) { return null; }
-            if (!s.GetComponent<GameSquare>().IsActive) { return null; }
+            GameSquare gameSquare = GetGameSquare(move.Coord);
+            if (!gameSquare.IsActive)
+            {
+                return null;
+            }
 
-            float xHigh = s.transform.position.x + HalfWidth;
-            float xLow = s.transform.position.x - HalfWidth;
-            float yHigh = s.transform.position.y + HalfHeight;
-            float yLow = s.transform.position.y - HalfHeight;
+            float xHigh = gameSquare.gameObject.transform.position.x + HalfWidth;
+            float xLow = gameSquare.gameObject.transform.position.x - HalfWidth;
+            float yHigh = gameSquare.gameObject.transform.position.y + HalfHeight;
+            float yLow = gameSquare.gameObject.transform.position.y - HalfHeight;
 
             if (mousePos.x <= xHigh && mousePos.x >= xLow &&
                 mousePos.y <= yHigh && mousePos.y >= yLow)
@@ -555,7 +547,7 @@ namespace Assets.Scripts
             {
                 if (SelectedPiece.Dragging)
                 {
-                    GameObject square = null;
+                    GameSquare gameSquare = null;
                     //Check Direction - if away, add, if towards, remove
                     if (RelativeDir == Move.RelativeDirection.AWAY && (!ActionPieceWasPlaced || SelectedPiece.PieceType == Piece.TypeOfPiece.Queen))
                     {                        
@@ -568,10 +560,14 @@ namespace Assets.Scripts
                             Move testMove = GetValidMove(SelectedPiece.PreviewMoves.Peek());//Check to see if the last preview move is the current move                        
                             if (testMove != null)
                             {
-                                square = Squares[testMove.Coord.row][testMove.Coord.col];
-                                if (!square.GetComponent<GameSquare>().CanRemove) { return; }
+                                gameSquare = GetGameSquare(testMove.Coord);
+                                if (!gameSquare.CanRemove)
+                                {
+                                    return;
+                                }
+
                                 //Limit movement to middle of spot
-                                Vector3 diff = Camera.main.ScreenToWorldPoint(Input.mousePosition) - square.transform.position;
+                                Vector3 diff = Camera.main.ScreenToWorldPoint(Input.mousePosition) - gameSquare.gameObject.transform.position;
                                 float centerSize = HalfWidth / 2;
 
                                 if (Mathf.Abs(diff.x) < centerSize &&
@@ -580,27 +576,27 @@ namespace Assets.Scripts
                                 try
                                 {
                                     Debug.Log("MoveBack: Check Squares.");
-                                    if (SquareContainsPreviewPiece(square))
+                                    if (gameSquare.ContainsPreviewPiece())
                                     {
-                                        square.transform.GetComponentInChildren<PreviewPiece>().RemoveMove();
-                                        MoveBackOne(square);
+                                        gameSquare.gameObject.transform.GetComponentInChildren<PreviewPiece>().RemoveMove();
+                                        MoveBackOne(gameSquare);
                                     }
-                                    else if (SquareContainsEnemyPiece(square))
+                                    else if (gameSquare.ContainsEnemyPiece(this))
                                     {
                                         ActionPieceWasPlaced = false;
-                                        square.transform.GetComponentInChildren<AttackSquare>().RemoveMove();
-                                        MoveBackOne(square);
+                                        gameSquare.gameObject.transform.GetComponentInChildren<AttackSquare>().RemoveMove();
+                                        MoveBackOne(gameSquare);
                                     }
-                                    else if (SquareContainsMovePiece(square))
+                                    else if (SquareContainsMovePiece(gameSquare.gameObject))
                                     {
                                         ActionPieceWasPlaced = false;
-                                        square.transform.GetComponentInChildren<MovePiece>().RemoveMove();
-                                        MoveBackOne(square);
+                                        gameSquare.gameObject.transform.GetComponentInChildren<MovePiece>().RemoveMove();
+                                        MoveBackOne(gameSquare);
                                     }
                                 }
                                 catch (Exception ex)
                                 {
-                                    Debug.Log(square);
+                                    Debug.Log(gameSquare);
                                     Debug.Log(ex);
                                 }
 
@@ -644,15 +640,16 @@ namespace Assets.Scripts
                     ////Debug.Log("Piece finished moving.");
                     piece.FinishedMoving = true;
                     piece.HasMoved = true;
-                    GameObject currSquare = Squares[piece.NextMove.Coord.row][piece.NextMove.Coord.col];
+                    GameSquare currSquare = GetGameSquare(piece.NextMove.Coord);
                     if (currSquare != null)
                     {
-                        if (currSquare.transform.childCount > 0)
+                        if (currSquare.gameObject.transform.childCount > 0)
                         {
-                            currSquare.GetComponent<GameSquare>().ClickCount = 0;//Reset click count for square
-                            for (int i = 0; i < currSquare.transform.childCount; i++)
+                            currSquare.ClickCount = 0;   //  Reset click count for square
+
+                            for (int i = 0; i < currSquare.gameObject.transform.childCount; i++)
                             {
-                                var dot = currSquare.transform.GetChild(i);
+                                var dot = currSquare.gameObject.transform.GetChild(i);
                                 if (dot != null)
                                 {
                                     if (dot.GetComponent<Piece>() == null)
@@ -678,10 +675,10 @@ namespace Assets.Scripts
             StartCoroutine(LerpPiece(piece));            
         }
 
-        public void MoveBackOne(GameObject square)
+        public void MoveBackOne(GameSquare square)
         {
-            square.GetComponent<GameSquare>().CanMoveTo = true;//reset the square
-            square.GetComponent<GameSquare>().CanRemove = false;
+            square.CanMoveTo = true;//reset the square
+            square.CanRemove = false;
             Debug.Log("MoveBackOne...");
             //** Remove the Current Move or Attack if they exist
             CurrentAttackPiece = null;//There is only ever one attack piece placed to remove it if it exists
@@ -694,7 +691,7 @@ namespace Assets.Scripts
                     Structs.Coordinate coord = SelectedPiece.PreviewMoves.ElementAt(0).Coord;
                     Debug.Log("preview count: " + previewMoveCount + "Coordinate: " + coord.row + " | " + coord.col);
                     //var test = square.GetComponentInChildren<MovePiece>();
-                    var test = Squares[coord.row][coord.col].GetComponentInChildren<MovePiece>();
+                    var test = GetGameSquare(coord).gameObject.GetComponentInChildren<MovePiece>();
                     Debug.Log("Test: " + test);
                     //CurrentMovePiece = square.GetComponentInChildren<MovePiece>().gameObject;
                     CurrentMovePiece = test.gameObject;
@@ -789,31 +786,33 @@ namespace Assets.Scripts
 
         public void MoveToSquare(Piece piece, Move move)
         {
-            var square1 = Squares[piece.StartSpot.Coord.row][piece.StartSpot.Coord.col];
-            square1.transform.DetachChildren();
-            var square2 = Squares[move.Coord.row][move.Coord.col];
+            GameSquare square1 = GetGameSquare(piece.StartSpot.Coord);
+            square1.gameObject.transform.DetachChildren();
+            GameSquare square2 = GetGameSquare(move.Coord);
             //May need to nullify children before detach ?         
-            piece.transform.parent = square2.transform;
+            piece.transform.parent = square2.gameObject.transform;
         }
 
-        public void PlaceAttackPiece(GameObject square, Move move)
+        public void PlaceAttackPiece(GameSquare gameSquare, Move move)
         {
-            if (Board.transform.Find("AttackSquare") || Board.transform.FindChild("AttackSquare"))//Only place one attack square
+            if (Board.transform.Find("AttackSquare") || Board.transform.FindChild("AttackSquare"))  //  Only place one attack square
             {
                 return;
             }
+
             if (SelectedPiece.PieceType != Piece.TypeOfPiece.Queen)
                 SelectedPiece.MovesRemaining--;
-            square.GetComponent<GameSquare>().CanMoveTo = false;
-            GameObject attackSquare = (GameObject)Instantiate(Resources.Load(@"Prefabs/Squares/AttackSquare"),
-                                                                                        Vector3.zero,
-                                                                                        Quaternion.identity);
-            attackSquare.transform.parent = square.transform;
-            attackSquare.transform.position = new Vector3(square.transform.position.x, square.transform.position.y, -2);
+
+            gameSquare.CanMoveTo = false;
+
+            GameObject attackSquare = (GameObject)Instantiate(Resources.Load(@"Prefabs/Squares/AttackSquare"), Vector3.zero, Quaternion.identity);
+            attackSquare.transform.parent = gameSquare.gameObject.transform;
+            attackSquare.transform.position = new Vector3(gameSquare.gameObject.transform.position.x, gameSquare.gameObject.transform.position.y, -2);
             attackSquare.transform.localScale = new Vector3(1, 1, 1);
-            move.Owner = attackSquare;
-            square.GetComponent<GameSquare>().CanAttack = true;
             attackSquare.GetComponent<AttackSquare>().CurrentMove = move;
+
+            move.Owner = attackSquare;
+            gameSquare.CanAttack = true;
             LastMove = move;
             ActionPieceWasPlaced = true;
 
@@ -821,19 +820,25 @@ namespace Assets.Scripts
             DisplayAttackButton();
         }
 
-        public void PlaceMovePiece(GameObject square, Move move)
+        public void PlaceMovePiece(GameSquare gameSquare, Move move)
         {
-            if (square.GetComponent<Piece>() != null) { return; }
+            if (gameSquare.gameObject.GetComponent<Piece>() != null)
+            {
+                return;
+            }
+
             if (SelectedPiece.PieceType != Piece.TypeOfPiece.Queen)
                 SelectedPiece.MovesRemaining--;
-            square.GetComponent<GameSquare>().CanMoveTo = false;
-            GameObject moveHolder = (GameObject)Instantiate(MovePiece, Vector3.zero, Quaternion.identity);
-            moveHolder.transform.parent = square.transform;
-            moveHolder.transform.position = move.Pos;
 
-            move.Owner = moveHolder;
+            gameSquare.CanMoveTo = false;
+
+            GameObject moveHolder = (GameObject)Instantiate(MovePiece, Vector3.zero, Quaternion.identity);
+            moveHolder.transform.parent = gameSquare.gameObject.transform;
+            moveHolder.transform.position = move.Pos;
             moveHolder.SetActive(true);
             moveHolder.GetComponent<MovePiece>().CurrentMove = move;
+
+            move.Owner = moveHolder;
             LastMove = move;
             ActionPieceWasPlaced = true;
 
@@ -841,26 +846,32 @@ namespace Assets.Scripts
             DisplayMoveButton();
         }
 
-        public void PlacePreviewPiece(GameObject square, Move move)
+        public void PlacePreviewPiece(GameSquare gameSquare, Move move)
         {
-            if (square.GetComponent<Piece>() != null) { return; }
+            if (gameSquare.gameObject.GetComponent<Piece>() != null)
+            {
+                return;
+            }
+
             SelectedPiece.MovesRemaining--;
-            square.GetComponent<GameSquare>().CanMoveTo = false;
+
+            gameSquare.CanMoveTo = false;
+
             float pieceSizeDivider = 1f / SelectedPiece.CurrentMoveCount;
             float relativeSize = Mathf.Abs(SelectedPiece.CurrentMoveCount - SelectedPiece.MovesRemaining + 1) * pieceSizeDivider;
 
             GameObject moveHolder = (GameObject)Instantiate(PlaceHolder, Vector3.zero, Quaternion.identity);
-            moveHolder.transform.parent = square.transform;
+            moveHolder.transform.parent = gameSquare.gameObject.transform;
             moveHolder.transform.position = move.Pos;
+            moveHolder.SetActive(true);
+            moveHolder.GetComponent<PreviewPiece>().CurrentMove = move;
 
             move.Owner = moveHolder;
-            moveHolder.SetActive(true);
 
             var img = moveHolder.transform.GetChild(0);
             Vector3 newScale = new Vector3(relativeSize, relativeSize);
             img.transform.localScale = newScale;
 
-            moveHolder.GetComponent<PreviewPiece>().CurrentMove = move;
             LastMove = move;
         }
 
@@ -896,7 +907,8 @@ namespace Assets.Scripts
         
         public void SetMovePiece()
         {
-            GameObject square = null;
+            GameSquare currSquare = null;
+
             if (SelectedPiece.MovesRemaining > 0 || SelectedPiece.PieceType == Piece.TypeOfPiece.Queen)
             {                
                 //Reset direction
@@ -921,11 +933,14 @@ namespace Assets.Scripts
                 //If a valid move was found
                 if (validMove != null)
                 {
-                    square = Squares[validMove.Coord.row][validMove.Coord.col];
-                    if (!square.GetComponent<GameSquare>().CanMoveTo) { return; }
+                    currSquare = GetGameSquare(validMove.Coord);
+                    if (!currSquare.CanMoveTo)
+                    {
+                        return;
+                    }
 
                     //Limit movement to middle of spot
-                    Vector3 diff = mousePos - square.transform.position;
+                    Vector3 diff = mousePos - currSquare.gameObject.transform.position;
                     float centerSize = HalfWidth / 2f;
 
                     if (Mathf.Abs(diff.x) > centerSize || Mathf.Abs(diff.y) > centerSize)
@@ -936,17 +951,18 @@ namespace Assets.Scripts
                     SelectedPiece.CurrentMove = validMove;
 
                     //Set Move Dot or Attack Dot
-                    if (SquareContainsEnemyPiece(square))
+                    if (currSquare.ContainsEnemyPiece(this))
                     {
-                        PlaceAttackPiece(square, validMove);
+                        PlaceAttackPiece(currSquare, validMove);
                     }
-                    else if (!SquareContainsPreviewPiece(square) && (SelectedPiece.MovesRemaining == 1 || SelectedPiece.PieceType == Piece.TypeOfPiece.Queen))
+                    else if (   !currSquare.ContainsPreviewPiece() && 
+                                (SelectedPiece.MovesRemaining == 1 || SelectedPiece.PieceType == Piece.TypeOfPiece.Queen) )
                     {
-                        PlaceMovePiece(square, validMove);
+                        PlaceMovePiece(currSquare, validMove);
                     }
                     else
                     {
-                        PlacePreviewPiece(square, validMove);
+                        PlacePreviewPiece(currSquare, validMove);
                     }
 
                     //Set Changed Direction Flag
@@ -956,7 +972,7 @@ namespace Assets.Scripts
                     }
 
                     SelectedPiece.CurrentDirection = validMove.Dir;
-                    square.GetComponent<GameSquare>().CanMoveTo = false;
+                    currSquare.CanMoveTo = false;
                     
                     //MoveCountLabel.text = SelectedPiece.MovesRemaining.ToString();
                     
@@ -1172,12 +1188,12 @@ namespace Assets.Scripts
         // ****************************************************
         // Private Methods
         // ****************************************************
-        private void InitializePiece(Player currPlayer, GameObject currSquare, int row, int col, Vector3 startPos)
+        private void InitializePiece(Player currPlayer, GameSquare currSquare, int row, int col, Vector3 startPos)
         {
             // Initialize piece game object properties
             int playerRowIndex = row % 2;
             Piece currPiece = currPlayer.Pieces[playerRowIndex][col];
-            currPiece.gameObject.transform.parent = currSquare.transform;
+            currPiece.gameObject.transform.parent = currSquare.gameObject.transform;
             currPiece.gameObject.transform.position = startPos;
             if (currPlayer.PlayerNumber == 2)
             {
@@ -1211,9 +1227,9 @@ namespace Assets.Scripts
             return newSquare;
         }
 
-        private void InstantiateGameSquare(Vector3 startPos, int row, int col)
+        private GameSquare InstantiateGameSquare(Vector3 startPos, int row, int col)
         {
-            Squares[row][col] = InstantiateSquare(@"Prefabs/Squares/GameSquare", "Square", startPos, Consts.zPos_GameSquare, row, col).gameObject;
+            return (GameSquare)InstantiateSquare(@"Prefabs/Squares/GameSquare", "Square", startPos, Consts.zPos_GameSquare, row, col);
         }
 
         private BackgroundSquare InstantiateBackgroundGameSquare(Vector3 startPos, int row, int col)
@@ -1247,37 +1263,7 @@ namespace Assets.Scripts
             }
             return false;
         }
-
-        private bool SquareContainsEnemyPiece(GameObject square)
-        {
-            if (square.transform.childCount <= 0)
-            {
-                return false;
-            }
-
-            for (int i = 0; i < square.transform.childCount; i++)
-            {
-                //Debug.Log(square.transform.GetChild(i));
-                try
-                {
-                    Piece temp = square.transform.GetChild(i).GetComponent<Piece>();
-                    if (temp != null)
-                    {
-                        if (temp.Owner != CurrentTurn)
-                        {
-                            //Debug.Log("EnemyPiece temp: " + temp);
-                            return true;
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    return false;
-                }
-            }
-            return false;
-        }
-
+        
         private bool SquareContainsMovePiece(GameObject square)
         {
             if (square.transform.childCount <= 0)
@@ -1305,32 +1291,6 @@ namespace Assets.Scripts
             return false;
         }
 
-        private bool SquareContainsPreviewPiece(GameObject square)
-        {
-            if (square.transform.childCount <= 0)
-            {
-                return false;
-            }
-
-            for (int i = 0; i < square.transform.childCount; i++)
-            {
-                //Debug.Log(square.transform.GetChild(i));
-                try
-                {
-                    PreviewPiece temp = square.transform.GetChild(i).GetComponent<PreviewPiece>();                
-                    if (temp != null)
-                    {
-                        //Debug.Log("PreviewPiece temp: " + temp);
-                        return true;
-                    }
-                }
-                catch (Exception)
-                {
-                    return false;
-                }
-            }
-            return false;
-        }
 
         // ****************************************************
         // End Game Actions

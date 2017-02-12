@@ -651,13 +651,13 @@ namespace Assets.Scripts
                 return null;
             }
 
-            GameObject square = gameRef.GetSquare(newCoordinate);
+            GameSquare square = gameRef.GetGameSquare(newCoordinate);
             Vector3 squarePos = square.gameObject.transform.position;
             Piece attacker = null;
 
             if (square.transform.childCount > 0)
             {
-                attacker = square.transform.GetChild(0).GetComponent<Piece>();
+                attacker = square.gameObject.transform.GetChild(0).GetComponent<Piece>();
             }
 
             return new Move(squarePos, newCoordinate, direction, attacker);

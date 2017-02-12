@@ -125,7 +125,7 @@ namespace Assets.Scripts
                     if (temp.Coord.row == CurrentMove.Coord.row &&
                         temp.Coord.col == CurrentMove.Coord.col)//Destry Self
                     {                       
-                        GameRef.GetSquare(temp.Coord).GetComponent<GameSquare>().CanRemove = false;
+                        GameRef.GetGameSquare(temp.Coord).CanRemove = false;
                         //GameRef.SelectedPiece.PreviewCoord = CurrentMove.FromCoord;
                         GameRef.SelectedPiece.CurrentDirection = CurrentMove.Dir;
                         GameRef.SelectedPiece.GetAvailableMoves();
