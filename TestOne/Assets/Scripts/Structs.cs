@@ -25,10 +25,10 @@ namespace Assets.Scripts
 
             public Boolean IsValid()
             {
-                return  (this.row >= Consts.minRow) && 
-                        (this.row <= Consts.maxRow) && 
-                        (this.col >= Consts.minCol) && 
-                        (this.col <= Consts.maxCol);
+                return  (this.row >= Consts.minRowIndex) && 
+                        (this.row <= Consts.maxRowIndex) && 
+                        (this.col >= Consts.minColIndex) && 
+                        (this.col <= Consts.maxColIndex);
             }
         }
 

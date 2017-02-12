@@ -11,8 +11,7 @@ namespace Assets.Scripts
         // ****************************************************
         // Properties
         // ****************************************************
-        public GameObject[][] Pieces;
-        //public List<Piece> Pieces = new List<Piece>();
+        public Piece[][] Pieces;
         public int PlayerNumber;
         public string Name;
 
@@ -41,21 +40,24 @@ namespace Assets.Scripts
         // ****************************************************
         // MonoBehaviour Events
         // ****************************************************
-       
+
         // ****************************************************
         // Public Mehtods
         // ****************************************************
         #region InitPlayer(int number)
+
         public void InitPlayer(int number)
         {
-            Pieces = new GameObject[2][];
+            Pieces = new Piece[2][];
             PlayerNumber = number;
             InitializePieces();
             LoadPieces();
         }
+
         #endregion
 
         #region LoadPieces()
+
         public void LoadPieces()
         {
             //Load Default Piece Loadout
@@ -64,46 +66,46 @@ namespace Assets.Scripts
             if (PlayerNumber == 1)
             {
                 //row 0
-                Pieces[0][0] = (GameObject)Instantiate(Resources.Load(@"Prefabs/Fighter1a"), Vector2.zero, Quaternion.identity);
-                Pieces[0][1] = (GameObject)Instantiate(Resources.Load(@"Prefabs/Fighter1a"), Vector2.zero, Quaternion.identity);
-                Pieces[0][2] = (GameObject)Instantiate(Resources.Load(@"Prefabs/Drone1a"), Vector2.zero, Quaternion.identity);
-                Pieces[0][3] = (GameObject)Instantiate(Resources.Load(@"Prefabs/King1a"), Vector2.zero, Quaternion.identity);
-                Pieces[0][4] = (GameObject)Instantiate(Resources.Load(@"Prefabs/Queen1a"), Vector2.zero, Quaternion.identity);
-                Pieces[0][5] = (GameObject)Instantiate(Resources.Load(@"Prefabs/Drone1a"), Vector2.zero, Quaternion.identity);
-                Pieces[0][6] = (GameObject)Instantiate(Resources.Load(@"Prefabs/Fighter1a"), Vector2.zero, Quaternion.identity);
-                Pieces[0][7] = (GameObject)Instantiate(Resources.Load(@"Prefabs/Fighter1a"), Vector2.zero, Quaternion.identity);
+                Pieces[0][0] = InstantiatePiece(@"Prefabs/Fighter1a");
+                Pieces[0][1] = InstantiatePiece(@"Prefabs/Fighter1a");
+                Pieces[0][2] = InstantiatePiece(@"Prefabs/Drone1a");
+                Pieces[0][3] = InstantiatePiece(@"Prefabs/King1a");
+                Pieces[0][4] = InstantiatePiece(@"Prefabs/Queen1a");
+                Pieces[0][5] = InstantiatePiece(@"Prefabs/Drone1a");
+                Pieces[0][6] = InstantiatePiece(@"Prefabs/Fighter1a");
+                Pieces[0][7] = InstantiatePiece(@"Prefabs/Fighter1a");
 
                 //row 1
-                Pieces[1][0] = (GameObject)Instantiate(Resources.Load(@"Prefabs/Drone1a"), Vector2.zero, Quaternion.identity);
-                Pieces[1][1] = (GameObject)Instantiate(Resources.Load(@"Prefabs/Fighter1a"), Vector2.zero, Quaternion.identity);
-                Pieces[1][2] = (GameObject)Instantiate(Resources.Load(@"Prefabs/Defender1a"), Vector2.zero, Quaternion.identity);
-                Pieces[1][3] = (GameObject)Instantiate(Resources.Load(@"Prefabs/Defender1a"), Vector2.zero, Quaternion.identity);
-                Pieces[1][4] = (GameObject)Instantiate(Resources.Load(@"Prefabs/Defender1a"), Vector2.zero, Quaternion.identity);
-                Pieces[1][5] = (GameObject)Instantiate(Resources.Load(@"Prefabs/Defender1a"), Vector2.zero, Quaternion.identity);
-                Pieces[1][6] = (GameObject)Instantiate(Resources.Load(@"Prefabs/Fighter1a"), Vector2.zero, Quaternion.identity);
-                Pieces[1][7] = (GameObject)Instantiate(Resources.Load(@"Prefabs/Drone1a"), Vector2.zero, Quaternion.identity);
+                Pieces[1][0] = InstantiatePiece(@"Prefabs/Drone1a");
+                Pieces[1][1] = InstantiatePiece(@"Prefabs/Fighter1a");
+                Pieces[1][2] = InstantiatePiece(@"Prefabs/Defender1a");
+                Pieces[1][3] = InstantiatePiece(@"Prefabs/Defender1a");
+                Pieces[1][4] = InstantiatePiece(@"Prefabs/Defender1a");
+                Pieces[1][5] = InstantiatePiece(@"Prefabs/Defender1a");
+                Pieces[1][6] = InstantiatePiece(@"Prefabs/Fighter1a");
+                Pieces[1][7] = InstantiatePiece(@"Prefabs/Drone1a");
             }
             else if (PlayerNumber == 2)
             {
                 //row 6
-                Pieces[0][0] = (GameObject)Instantiate(Resources.Load(@"Prefabs/Fighter2a"), Vector2.zero, Quaternion.identity);
-                Pieces[0][1] = (GameObject)Instantiate(Resources.Load(@"Prefabs/Fighter2a"), Vector2.zero, Quaternion.identity);
-                Pieces[0][2] = (GameObject)Instantiate(Resources.Load(@"Prefabs/Drone2a"), Vector2.zero, Quaternion.identity);
-                Pieces[0][3] = (GameObject)Instantiate(Resources.Load(@"Prefabs/King2a"), Vector2.zero, Quaternion.identity);
-                Pieces[0][4] = (GameObject)Instantiate(Resources.Load(@"Prefabs/Queen2a"), Vector2.zero, Quaternion.identity);
-                Pieces[0][5] = (GameObject)Instantiate(Resources.Load(@"Prefabs/Drone2a"), Vector2.zero, Quaternion.identity);
-                Pieces[0][6] = (GameObject)Instantiate(Resources.Load(@"Prefabs/Fighter2a"), Vector2.zero, Quaternion.identity);
-                Pieces[0][7] = (GameObject)Instantiate(Resources.Load(@"Prefabs/Fighter2a"), Vector2.zero, Quaternion.identity);
+                Pieces[0][0] = InstantiatePiece(@"Prefabs/Drone2a");
+                Pieces[0][1] = InstantiatePiece(@"Prefabs/Fighter2a");
+                Pieces[0][2] = InstantiatePiece(@"Prefabs/Defender2a");
+                Pieces[0][3] = InstantiatePiece(@"Prefabs/Defender2a");
+                Pieces[0][4] = InstantiatePiece(@"Prefabs/Defender2a");
+                Pieces[0][5] = InstantiatePiece(@"Prefabs/Defender2a");
+                Pieces[0][6] = InstantiatePiece(@"Prefabs/Fighter2a");
+                Pieces[0][7] = InstantiatePiece(@"Prefabs/Drone2a");
 
                 //row 7
-                Pieces[1][0] = (GameObject)Instantiate(Resources.Load(@"Prefabs/Drone2a"), Vector2.zero, Quaternion.identity);
-                Pieces[1][1] = (GameObject)Instantiate(Resources.Load(@"Prefabs/Fighter2a"), Vector2.zero, Quaternion.identity);
-                Pieces[1][2] = (GameObject)Instantiate(Resources.Load(@"Prefabs/Defender2a"), Vector2.zero, Quaternion.identity);
-                Pieces[1][3] = (GameObject)Instantiate(Resources.Load(@"Prefabs/Defender2a"), Vector2.zero, Quaternion.identity);
-                Pieces[1][4] = (GameObject)Instantiate(Resources.Load(@"Prefabs/Defender2a"), Vector2.zero, Quaternion.identity);
-                Pieces[1][5] = (GameObject)Instantiate(Resources.Load(@"Prefabs/Defender2a"), Vector2.zero, Quaternion.identity);
-                Pieces[1][6] = (GameObject)Instantiate(Resources.Load(@"Prefabs/Fighter2a"), Vector2.zero, Quaternion.identity);
-                Pieces[1][7] = (GameObject)Instantiate(Resources.Load(@"Prefabs/Drone2a"), Vector2.zero, Quaternion.identity);
+                Pieces[1][0] = InstantiatePiece(@"Prefabs/Fighter2a");
+                Pieces[1][1] = InstantiatePiece(@"Prefabs/Fighter2a");
+                Pieces[1][2] = InstantiatePiece(@"Prefabs/Drone2a");
+                Pieces[1][3] = InstantiatePiece(@"Prefabs/King2a");
+                Pieces[1][4] = InstantiatePiece(@"Prefabs/Queen2a");
+                Pieces[1][5] = InstantiatePiece(@"Prefabs/Drone2a");
+                Pieces[1][6] = InstantiatePiece(@"Prefabs/Fighter2a");
+                Pieces[1][7] = InstantiatePiece(@"Prefabs/Fighter2a");
             }
         }
 
@@ -111,6 +113,7 @@ namespace Assets.Scripts
         {
             //TODO: finish code
         }
+
         #endregion
 
         // ****************************************************
@@ -118,8 +121,13 @@ namespace Assets.Scripts
         // ****************************************************
         private void InitializePieces()
         {
-            Pieces[0] = new GameObject[8];
-            Pieces[1] = new GameObject[8];            
+            Pieces[0] = new Piece[Consts.colCount];
+            Pieces[1] = new Piece[Consts.colCount];
+        }
+
+        private Piece InstantiatePiece(string prefabPath)
+        {
+            return ((GameObject)Instantiate(Resources.Load(prefabPath), Vector2.zero, Quaternion.identity)).GetComponent<Piece>();
         }
     }
 }

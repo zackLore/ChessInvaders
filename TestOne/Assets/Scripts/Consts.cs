@@ -15,10 +15,12 @@ namespace Assets.Scripts
         public const float zPos_Menu              = -100.0f;
 
         // Coordinate Boundaries
-        public const int minRow = 0;
-        public const int maxRow = 7;
-        public const int minCol = 0;
-        public const int maxCol = 7;
+        public const int rowCount = 8;
+        public const int minRowIndex = 0;
+        public const int maxRowIndex = rowCount - 1;
+        public const int colCount = 8;
+        public const int minColIndex = 0;
+        public const int maxColIndex = colCount - 1;
 
         // Colors
         static private Color _disabledMultiplier = new Color(1, 1, 1, 0.5f);
