@@ -15,12 +15,17 @@ namespace Assets.Scripts
         public const float zPos_Menu              = -100.0f;
 
         // Coordinate Boundaries
-        public const int rowCount = 8;
-        public const int minRowIndex = 0;
-        public const int maxRowIndex = rowCount - 1;
-        public const int colCount = 8;
-        public const int minColIndex = 0;
-        public const int maxColIndex = colCount - 1;
+        public const int rowCount       = 8;
+        public const int minRowIndex    = 0;
+        public const int maxRowIndex    = rowCount - 1;
+        public const int colCount       = 8;
+        public const int minColIndex    = 0;
+        public const int maxColIndex    = colCount - 1;
+
+        // Square Prefab Paths
+        public const string prefabPath_attackSquare     = @"Prefabs/Squares/AttackSquare";
+        public const string prefabPath_gameSquare       = @"Prefabs/Squares/GameSquare";
+        public const string prefabPath_backgroundSquare = @"Prefabs/Squares/BackgroundSquare";
 
         // Colors
         static private Color _disabledMultiplier = new Color(1, 1, 1, 0.5f);

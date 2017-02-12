@@ -109,7 +109,7 @@ namespace Assets.Scripts
 
             CurrentPlayerActionMode = PlayerActionMode.kSelect;
 
-            GameSquare testSquare = InstantiateGameSquare(new Vector3(0,0,0), 0, 0);
+            GameSquare testSquare = InstantiateGameSquare(new Vector3(0,0,0), -1, -1);
             SquareHeight = testSquare.spriteRenderer.sprite.rect.height;
             SquareWidth = testSquare.spriteRenderer.sprite.rect.width;
             HalfHeight = SquareHeight / 2;
@@ -162,7 +162,7 @@ namespace Assets.Scripts
                 startPos.y = startPos.y - SquareHeight;
             }
             
-            Destroy(testSquare);
+            DestroyImmediate(testSquare.gameObject);
             RollMenu.transform.Find("RollMenuBackground").GetComponent<Image>().color = CurrentTurn.PlayerNumber == 1 ? UnityEngine.Color.green : UnityEngine.Color.magenta;
 
             var buttons = PreviewMenu.GetComponentsInChildren<Button>();
@@ -805,7 +805,7 @@ namespace Assets.Scripts
 
             gameSquare.CanMoveTo = false;
 
-            GameObject attackSquare = (GameObject)Instantiate(Resources.Load(@"Prefabs/Squares/AttackSquare"), Vector3.zero, Quaternion.identity);
+            GameObject attackSquare = (GameObject)Instantiate(Resources.Load(Consts.prefabPath_attackSquare), Vector3.zero, Quaternion.identity);
             attackSquare.transform.parent = gameSquare.gameObject.transform;
             attackSquare.transform.position = new Vector3(gameSquare.gameObject.transform.position.x, gameSquare.gameObject.transform.position.y, -2);
             attackSquare.transform.localScale = new Vector3(1, 1, 1);
@@ -1229,12 +1229,12 @@ namespace Assets.Scripts
 
         private GameSquare InstantiateGameSquare(Vector3 startPos, int row, int col)
         {
-            return (GameSquare)InstantiateSquare(@"Prefabs/Squares/GameSquare", "Square", startPos, Consts.zPos_GameSquare, row, col);
+            return (GameSquare)InstantiateSquare(Consts.prefabPath_gameSquare, "Square", startPos, Consts.zPos_GameSquare, row, col);
         }
 
         private BackgroundSquare InstantiateBackgroundGameSquare(Vector3 startPos, int row, int col)
         {
-            return (BackgroundSquare)InstantiateSquare(@"Prefabs/Squares/BackgroundSquare", "BG_Square", startPos, Consts.zPos_BackgroundSquare, row, col);
+            return (BackgroundSquare)InstantiateSquare(Consts.prefabPath_backgroundSquare, "BG_Square", startPos, Consts.zPos_BackgroundSquare, row, col);
         }
 
         private bool SquareContainsAttackSquare(GameObject square)
