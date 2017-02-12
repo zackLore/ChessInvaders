@@ -280,7 +280,7 @@ namespace Assets.Scripts
 
         public void ClearHighlight(Move move)
         {
-            var square = gameRef.BackgroundSquares[move.Coord.row][move.Coord.col];
+            var square = gameRef.GetBackgroundSquare(move.Coord);
             if (square != null)
             {
                 square.GetComponent<SpriteRenderer>().color = Color.clear;
@@ -328,6 +328,11 @@ namespace Assets.Scripts
         }
 
         #endregion //   Piece Highlight Methods
+
+        public Boolean IsOwnedByCurrentTurnPlayer()
+        {
+            return (Owner.PlayerNumber == gameRef.CurrentTurn.PlayerNumber);
+        }
 
         public void ClearValues()
         {
@@ -693,11 +698,6 @@ namespace Assets.Scripts
             return GetMoves(Move.Directions_NoDiagonals);
         }
 
-        private Boolean IsOwnedByCurrentTurnPlayer()
-        {
-            return (Owner.PlayerNumber == gameRef.CurrentTurn.PlayerNumber);
-        }
-
         private void HandlePieceSelectionSound()
         {
             if (PieceType == TypeOfPiece.Bomb)
@@ -717,7 +717,7 @@ namespace Assets.Scripts
         private void HandleSelect()
         {
             //  if this piece is yours
-            if (this.Owner == GameRef.CurrentTurn)
+            if (Owner == GameRef.CurrentTurn)
             {
                 //  if no piece is selected
                 if (GameRef.SelectedPiece == null)
