@@ -7,5 +7,10 @@ namespace Assets.Scripts
     {
         public SpriteRenderer spriteRenderer;
         public Structs.Coordinate Coord;
+
+        public void SetColor(Color newColor)
+        {
+            spriteRenderer.color = newColor;
+        }
     }
 }

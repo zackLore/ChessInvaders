@@ -277,14 +277,19 @@ namespace Assets.Scripts
         // Public Methods
         // ****************************************************
         #region Piece Highlight Methods
+        
+        public void SetHighlight(Move move, Color color)
+        {
+            var backgroundSquare = gameRef.GetBackgroundSquare(move.Coord);
+            if (backgroundSquare != null)
+            {
+                backgroundSquare.SetColor(color);
+            }
+        }
 
         public void ClearHighlight(Move move)
         {
-            var square = gameRef.GetBackgroundSquare(move.Coord);
-            if (square != null)
-            {
-                square.GetComponent<SpriteRenderer>().color = Color.clear;
-            }                
+            SetHighlight(move, Color.clear);
         }
 
         public void ClearHighlights()
@@ -298,31 +303,18 @@ namespace Assets.Scripts
             }
         }
         
-        public void SetHighlight(Move move, Color color)
-        {
-            var backgroundSquare = gameRef.GetBackgroundSquare(move.Coord);
-            if (backgroundSquare != null)
-            {
-                backgroundSquare.GetComponent<SpriteRenderer>().color = color;
-            }
-        }
-        
         public void SetHighlights()
         {
             if (AvailableMoves.Count > 0)
             {
                 foreach (Move move in AvailableMoves)
                 {
-                    var square = gameRef.GetSquare(move.Coord);
-                    if (square != null)
+                    Color highlightColor = Consts.highlightColor_move;
+                    if (move.PieceAtPosition != null)
                     {
-                        Color highlightColor = Consts.highlightColor_move;
-                        if (move.PieceAtPosition != null)
-                        {
-                            highlightColor = move.PieceAtPosition.IsOwnedByCurrentTurnPlayer() ? Consts.highlightColor_friendly : Consts.highlightColor_attack;
-                        }
-                        SetHighlight(move, highlightColor);
+                        highlightColor = move.PieceAtPosition.IsOwnedByCurrentTurnPlayer() ? Consts.highlightColor_friendly : Consts.highlightColor_attack;
                     }
+                    SetHighlight(move, highlightColor);
                 }
             }
         }

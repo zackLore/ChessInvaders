@@ -61,7 +61,7 @@ namespace Assets.Scripts
         private bool MoveComplete = false;
         
         public GameObject[][] Squares = new GameObject[8][];
-        public GameObject[][] BackgroundSquares = new GameObject[8][];
+        public BackgroundSquare[][] BackgroundSquares = new BackgroundSquare[Consts.rowCount][];
 
         public Move LastMove;
 
@@ -142,7 +142,7 @@ namespace Assets.Scripts
             for (int row = 0; row < Consts.rowCount; row++)
             {
                 Squares[row] = new GameObject[Consts.colCount];
-                BackgroundSquares[row] = new GameObject[Consts.colCount];
+                BackgroundSquares[row] = new BackgroundSquare[Consts.colCount];
                 for (int col = 0; col < Consts.colCount; col++)
                 {
                     GameObject newSquare = (GameObject)Instantiate(Resources.Load(@"Prefabs/Squares/GameSquare"), Vector3.zero, Quaternion.identity);
@@ -151,12 +151,8 @@ namespace Assets.Scripts
                     newSquare.name = "Square[" + row + "," + col + "]";
                     Squares[row][col] = newSquare;
 
-                    GameObject newBackgroundSquare = (GameObject)Instantiate(Resources.Load(@"Prefabs/Squares/BackgroundSquare"), Vector3.zero, Quaternion.identity);
-                    newBackgroundSquare.transform.parent = Board.transform;
-                    newBackgroundSquare.transform.position = new Vector3(startPos.x, startPos.y, Consts.zPos_BackgroundSquare);
-                    newBackgroundSquare.name = "BG_Square[" + row + "," + col + "]";
-                    BackgroundSquares[row][col] = newBackgroundSquare;
-                    
+                    BackgroundSquares[row][col] = InstantiateBackgroundGameSquare(startPos, row, col);
+
                     switch (row)
                     {
                         case 0:
@@ -255,7 +251,7 @@ namespace Assets.Scripts
             return Squares[coord.row][coord.col];
         }
 
-        public GameObject GetBackgroundSquare(Structs.Coordinate coord)
+        public BackgroundSquare GetBackgroundSquare(Structs.Coordinate coord)
         {
             return BackgroundSquares[coord.row][coord.col];
         }
@@ -287,11 +283,11 @@ namespace Assets.Scripts
 
         public void ClearAllHighlights()
         {
-            foreach (var s in BackgroundSquares)
+            foreach (BackgroundSquare[] rowOfSquares in BackgroundSquares)
             {
-                foreach (var sq in s)
+                foreach (BackgroundSquare backgroundSquare in rowOfSquares)
                 {
-                    sq.GetComponent<SpriteRenderer>().color = new Color(0f, 0f, 0f, 0f);
+                    backgroundSquare.spriteRenderer.color = Color.clear;
                 }
             }
         }
@@ -1205,24 +1201,24 @@ namespace Assets.Scripts
             return temp;
         }
 
-        private GameObject InstantiateSquare(string prefabPathname, string squareName, Vector3 startPos, float zPos, int row, int col)
+        private BaseSquare InstantiateSquare(string prefabPathname, string squareName, Vector3 startPos, float zPos, int row, int col)
         {
-            GameObject newSquare = (GameObject)Instantiate(Resources.Load(prefabPathname), Vector3.zero, Quaternion.identity);
-            newSquare.transform.parent = Board.transform;
-            newSquare.transform.position = new Vector3(startPos.x, startPos.y, zPos);
-            newSquare.name = squareName + "[" + row + "," + col + "]";
-            //newSquare.Coord = new Coord(row, col);
+            BaseSquare newSquare = ((GameObject)Instantiate(Resources.Load(prefabPathname), Vector3.zero, Quaternion.identity)).GetComponent<BaseSquare>();
+            newSquare.gameObject.transform.parent = Board.transform;
+            newSquare.gameObject.transform.position = new Vector3(startPos.x, startPos.y, zPos);
+            newSquare.gameObject.name = squareName + "[" + row + "," + col + "]";
+            newSquare.Coord = new Structs.Coordinate(row, col);
             return newSquare;
         }
 
         private void InstantiateGameSquare(Vector3 startPos, int row, int col)
         {
-            Squares[row][col] = InstantiateSquare(@"Prefabs/Squares/GameSquare", "Square", startPos, Consts.zPos_GameSquare, row, col);
+            Squares[row][col] = InstantiateSquare(@"Prefabs/Squares/GameSquare", "Square", startPos, Consts.zPos_GameSquare, row, col).gameObject;
         }
 
-        private void InstantiateBackgroundGameSquare(Vector3 startPos, int row, int col)
+        private BackgroundSquare InstantiateBackgroundGameSquare(Vector3 startPos, int row, int col)
         {
-            BackgroundSquares[row][col] = InstantiateSquare(@"Prefabs/Squares/BackgroundSquare", "BG_Square", startPos, Consts.zPos_BackgroundSquare, row, col);
+            return (BackgroundSquare)InstantiateSquare(@"Prefabs/Squares/BackgroundSquare", "BG_Square", startPos, Consts.zPos_BackgroundSquare, row, col);
         }
 
         private bool SquareContainsAttackSquare(GameObject square)
