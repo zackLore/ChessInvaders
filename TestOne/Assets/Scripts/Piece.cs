@@ -276,6 +276,8 @@ namespace Assets.Scripts
         // ****************************************************
         // Public Methods
         // ****************************************************
+        #region Piece Highlight Methods
+
         public void ClearHighlight(Move move)
         {
             var square = gameRef.BackgroundSquares[move.Coord.row][move.Coord.col];
@@ -295,6 +297,37 @@ namespace Assets.Scripts
                 }
             }
         }
+        
+        public void SetHighlight(Move move, Color color)
+        {
+            var backgroundSquare = gameRef.GetBackgroundSquare(move.Coord);
+            if (backgroundSquare != null)
+            {
+                backgroundSquare.GetComponent<SpriteRenderer>().color = color;
+            }
+        }
+        
+        public void SetHighlights()
+        {
+            if (AvailableMoves.Count > 0)
+            {
+                foreach (Move move in AvailableMoves)
+                {
+                    var square = gameRef.GetSquare(move.Coord);
+                    if (square != null)
+                    {
+                        Color highlightColor = Consts.highlightColor_move;
+                        if (move.PieceAtPosition != null)
+                        {
+                            highlightColor = move.PieceAtPosition.IsOwnedByCurrentTurnPlayer() ? Consts.highlightColor_friendly : Consts.highlightColor_attack;
+                        }
+                        SetHighlight(move, highlightColor);
+                    }
+                }
+            }
+        }
+
+        #endregion //   Piece Highlight Methods
 
         public void ClearValues()
         {
@@ -453,16 +486,6 @@ namespace Assets.Scripts
             MovesRemaining = CurrentMoveCount;
         }
 
-        public void SetAttackHighlight(Move move)
-        {
-            var square = gameRef.BackgroundSquares[move.Coord.row][move.Coord.col];
-            if (square != null)
-            {
-                //reset color
-                square.GetComponent<SpriteRenderer>().color = new Color(200f, 0f, 0f, .5f);
-            }
-        }
-
         public void SetDice()
         {
             switch (PieceType)
@@ -513,59 +536,6 @@ namespace Assets.Scripts
                     AttackDice.InitDice(1, 100, 99);
                     DefendDice.InitDice(1, 0, 0);
                     break;
-            }
-        }
-
-        public void SetFriendlyHighlight(Move move)
-        {
-            var square = gameRef.BackgroundSquares[move.Coord.row][move.Coord.col];
-            if (square != null)
-            {
-                //reset color
-                square.GetComponent<SpriteRenderer>().color = new Color(10f, 10f, 10f, .1f);
-            }
-        }
-
-        public void SetHighlights()
-        {
-            if (AvailableMoves.Count > 0)
-            {
-                foreach (Move move in AvailableMoves)
-                {
-                    var square = gameRef.GetSquare(move.Coord);
-                    if (square != null)
-                    {
-                        if (move.PieceAtPosition != null)
-                        {
-                            if (move.PieceAtPosition.Owner.PlayerNumber != gameRef.CurrentTurn.PlayerNumber)
-                            {
-                                SetAttackHighlight(move);
-                            }
-                            else if (move.PieceAtPosition.Owner.PlayerNumber == gameRef.CurrentTurn.PlayerNumber)
-                            {
-                                SetFriendlyHighlight(move);
-                            }
-                        }
-                        else
-                        {
-                            SetMoveHighlight(move);
-                        }
-                    }
-                }
-            }
-        }
-
-        public void SetMoveHighlight(Move move)
-        {
-            var square = gameRef.BackgroundSquares[move.Coord.row][move.Coord.col];
-            if (square != null)
-            {
-                //reset color
-                square.GetComponent<SpriteRenderer>().color = new Color(0f, 200f, 0f, .5f);
-            }
-            else
-            {
-                //Debug.Log("Move null: " + move);
             }
         }
 
@@ -635,7 +605,6 @@ namespace Assets.Scripts
             {
                 SetPieceType(TypeOfPiece.Bomb);
                 //Change Image
-
             }
         }
 
@@ -724,6 +693,11 @@ namespace Assets.Scripts
             return GetMoves(Move.Directions_NoDiagonals);
         }
 
+        private Boolean IsOwnedByCurrentTurnPlayer()
+        {
+            return (Owner.PlayerNumber == gameRef.CurrentTurn.PlayerNumber);
+        }
+
         private void HandlePieceSelectionSound()
         {
             if (PieceType == TypeOfPiece.Bomb)
@@ -742,7 +716,7 @@ namespace Assets.Scripts
 
         private void HandleSelect()
         {
-            //  if piece is yours
+            //  if this piece is yours
             if (this.Owner == GameRef.CurrentTurn)
             {
                 //  if no piece is selected
@@ -776,7 +750,7 @@ namespace Assets.Scripts
                     }
                 }
             }
-            //  if piece is opponent's
+            //  if this piece is opponent's
             else
             {
                 //  if no piece is selected
@@ -885,6 +859,5 @@ namespace Assets.Scripts
                 RollMoveDice();
             }
         }
-
     }
 }

@@ -97,5 +97,24 @@ namespace Assets.Scripts
         {
             get { return _defendButtonColor_active_disabled; }
         }
+
+        // Highlight colors
+        static private Color _highlightColor_attack = new Color(200f, 0f, 0f, 0.5f);
+        static public Color highlightColor_attack
+        {
+            get { return _highlightColor_attack; }
+        }
+
+        static private Color _highlightColor_friendly = new Color(10f, 10f, 10f, 0.1f);
+        static public Color highlightColor_friendly
+        {
+            get { return _highlightColor_friendly; }
+        }
+
+        static private Color _highlightColor_move = new Color(0f, 200f, 0f, 0.5f);
+        static public Color highlightColor_move
+        {
+            get { return _highlightColor_move; }
+        }
     }   
 }
