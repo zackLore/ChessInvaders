@@ -404,9 +404,7 @@ namespace Assets.Scripts
             Vector3 mousePos = GetGameSquare(lastMove.Coord).gameObject.transform.position;
             Vector3 last = LastMousePos - lastMove.Pos;
             Vector3 curr = mousePos - lastMove.Pos;
-
-            //Debug.Log("mousePos: " + mousePos + " | lastMove: " + Squares[lastMove.Coord.row][lastMove.Coord.col].transform.position);
-
+            
             float lastDif = Mathf.Abs(last.x) + Mathf.Abs(last.y);
             float currDif = Mathf.Abs(curr.x) + Mathf.Abs(curr.y);
 

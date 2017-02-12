@@ -122,8 +122,7 @@ namespace Assets.Scripts
                         GameRef.SelectedPiece.HasChangedDirection = false;
                     }
 
-                    if (temp.Coord.row == CurrentMove.Coord.row &&
-                        temp.Coord.col == CurrentMove.Coord.col)//Destry Self
+                    if (temp.Coord.Equals(CurrentMove.Coord))    //  Destroy Self
                     {                       
                         GameRef.GetGameSquare(temp.Coord).CanRemove = false;
                         //GameRef.SelectedPiece.PreviewCoord = CurrentMove.FromCoord;
@@ -133,7 +132,8 @@ namespace Assets.Scripts
                         GameObject.Destroy(this.gameObject);
                         return;
                     }
-                    if (temp.Owner != null)//Destroy Preview Object
+
+                    if (temp.Owner != null) //  Destroy Preview Object
                     {
                         GameObject.Destroy(temp.Owner.gameObject);
                     }                    

@@ -23,6 +23,11 @@ namespace Assets.Scripts
                 return new Coordinate(c1.row + c2.row, c1.col + c2.col);
             }
 
+            public bool Equals(Coordinate c)
+            {
+                return (row == c.row) && (col == c.col);
+            }
+
             public Boolean IsValid()
             {
                 return  (this.row >= Consts.minRowIndex) && 

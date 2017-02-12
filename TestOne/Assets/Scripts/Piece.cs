@@ -462,11 +462,14 @@ namespace Assets.Scripts
         
         public bool PreviewMoveExists(Move move)
         {
-            if (move == null) { Debug.Log("Null Move"); }
+            if (move == null)
+            {
+                Debug.Log("Null Move");
+            }
+
             foreach (Move m in PreviewMoves)
             {
-                if (m.Coord.row == move.Coord.row &&
-                    m.Coord.col == move.Coord.col)
+                if (m.Coord.Equals(move.Coord))
                 {
                     return true;
                 }
@@ -476,7 +479,7 @@ namespace Assets.Scripts
         
         public void ResetValues()
         {
-            Coord = CurrentMove != null ? CurrentMove.Coord : Coord;
+            Coord = (CurrentMove != null) ? CurrentMove.Coord : Coord;
             CurrentMoveCount = 0;
             HasChangedDirection = false;
             CurrentDirection = Move.Direction.NONE;
