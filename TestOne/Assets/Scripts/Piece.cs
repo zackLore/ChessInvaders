@@ -41,27 +41,7 @@ namespace Assets.Scripts
         public bool FinishedMoving = true;
         public bool Selected = false;
         public bool HasChangedDirection = false;
-
-        private bool _previewMode;
-        public bool PreviewMode
-        {
-            get
-            {
-                if (PreviewMoves.Count > 0)
-                {
-                    _previewMode = true;
-                }
-                else
-                {
-                    _previewMode = false;
-                }
-                return _previewMode;
-            }
-            set
-            {
-                _previewMode = value;
-            }
-        }
+        
 
         public int AttackLimit = 0;
         public int CurrentAttack = 0;
@@ -106,7 +86,6 @@ namespace Assets.Scripts
         public Player Owner;//Owner of the piece
 
         public Structs.Coordinate Coord;
-        public Structs.Coordinate PreviewCoord;
 
         private Vector3 _currentPosition;
         public Vector3 CurrentPosition
@@ -668,7 +647,7 @@ namespace Assets.Scripts
 
         private List<Move> GetMoves(Move.Direction[] directionArray)
         {
-            Structs.Coordinate testCoord = (PreviewMode == true) ? PreviewCoord : Coord;
+            Structs.Coordinate testCoord = (PreviewMoves.Count() > 0) ? PreviewMoves.Peek().Coord : Coord;
             List<Move> moves = new List<Move>();
 
             for (int dirIndex = 0; dirIndex < directionArray.Length; ++dirIndex)

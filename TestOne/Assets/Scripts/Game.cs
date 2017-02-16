@@ -976,17 +976,12 @@ namespace Assets.Scripts
                     
                     if (SelectedPiece.MovesRemaining > 0)
                     {
-                        //Sets preview mode to get accurate moves
-                        SelectedPiece.PreviewMode = true;
-                        SelectedPiece.PreviewCoord = validMove.Coord;
-
                         SelectedPiece.PreviewMoves.Push(validMove);
                         if(!ActionPieceWasPlaced || SelectedPiece.PieceType == Piece.TypeOfPiece.Queen)
                             SelectedPiece.GetAvailableMoves();
                     }
                     else if (SelectedPiece.MovesRemaining == 0)
                     {
-                        SelectedPiece.PreviewMode = false;
                         SelectedPiece.PreviewMoves.Push(validMove);
                         SelectedPiece.ClearHighlights();
                     }

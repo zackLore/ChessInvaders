@@ -125,7 +125,6 @@ namespace Assets.Scripts
                     if (temp.Coord.Equals(CurrentMove.Coord))    //  Destroy Self
                     {                       
                         GameRef.GetGameSquare(temp.Coord).CanRemove = false;
-                        //GameRef.SelectedPiece.PreviewCoord = CurrentMove.FromCoord;
                         GameRef.SelectedPiece.CurrentDirection = CurrentMove.Dir;
                         GameRef.SelectedPiece.GetAvailableMoves();
                         GameRef.UpdateMoveLabel();
