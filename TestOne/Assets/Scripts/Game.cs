@@ -549,7 +549,7 @@ namespace Assets.Scripts
                     //Check Direction - if away, add, if towards, remove
                     if (RelativeDir == Move.RelativeDirection.AWAY && (!ActionPieceWasPlaced || SelectedPiece.PieceType == Piece.TypeOfPiece.Queen))
                     {                        
-                        SetMovePiece();                        
+                        SetMovePiece(GetGameSquare(SelectedPiece.PreviewMoves.Peek().Coord));
                     }
                     else if (RelativeDir == Move.RelativeDirection.TOWARDS)
                     {
@@ -579,7 +579,7 @@ namespace Assets.Scripts
                                         gameSquare.gameObject.transform.GetComponentInChildren<PreviewPiece>().RemoveMove();
                                         MoveBackOne(gameSquare);
                                     }
-                                    else if (gameSquare.ContainsEnemyPiece(this))
+                                    else if (gameSquare.ContainsEnemyPiece())
                                     {
                                         ActionPieceWasPlaced = false;
                                         gameSquare.gameObject.transform.GetComponentInChildren<AttackSquare>().RemoveMove();
@@ -599,7 +599,7 @@ namespace Assets.Scripts
                                 }
 
                                 //Need to re-do this portion?
-                                //SelectedPiece.GetAvailableMoves();
+                                //SelectedPiece.UpdateAvailableMoves();
                             }
                         }
                     }
@@ -903,10 +903,8 @@ namespace Assets.Scripts
             Invoke("CompleteAttack", 1);
         }
         
-        public void SetMovePiece()
+        public void SetMovePiece(GameSquare currSquare)
         {
-            GameSquare currSquare = null;
-
             if (SelectedPiece.MovesRemaining > 0 || SelectedPiece.PieceType == Piece.TypeOfPiece.Queen)
             {                
                 //Reset direction
@@ -914,79 +912,52 @@ namespace Assets.Scripts
                 {
                     SelectedPiece.CurrentDirection = Move.Direction.NONE;
                 }
-
-                Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                Move validMove = null;
-
-                //Check to see if square is valid move
-                foreach (Move move in SelectedPiece.AvailableMoves.Where(x => ((x.PieceAtPosition == null) || (x.PieceAtPosition.IsOwnedByCurrentTurnPlayer() == false)) ))
-                {
-                    validMove = GetValidMove(move);
-                    if (validMove != null)
-                    {
-                        break;
-                    }
-                }
-
+                
+                Move availableMove = SelectedPiece.GetAvailableMoveAtCoordinate(currSquare.Coord);
+                
                 //If a valid move was found
-                if (validMove != null)
+                if (availableMove != null)
                 {
-                    currSquare = GetGameSquare(validMove.Coord);
                     if (!currSquare.CanMoveTo)
                     {
                         return;
                     }
-
-                    //Limit movement to middle of spot
-                    Vector3 diff = mousePos - currSquare.gameObject.transform.position;
-                    float centerSize = HalfWidth / 2f;
-
-                    if (Mathf.Abs(diff.x) > centerSize || Mathf.Abs(diff.y) > centerSize)
-                    {
-                        return;
-                    }
-                    
-                    SelectedPiece.CurrentMove = validMove;
+                                        
+                    SelectedPiece.CurrentMove = availableMove;
 
                     //Set Move Dot or Attack Dot
-                    if (currSquare.ContainsEnemyPiece(this))
+                    if (currSquare.ContainsEnemyPiece())
                     {
-                        PlaceAttackPiece(currSquare, validMove);
+                        PlaceAttackPiece(currSquare, availableMove);
                     }
                     else if (   !currSquare.ContainsPreviewPiece() && 
                                 (SelectedPiece.MovesRemaining == 1 || SelectedPiece.PieceType == Piece.TypeOfPiece.Queen) )
                     {
-                        PlaceMovePiece(currSquare, validMove);
+                        PlaceMovePiece(currSquare, availableMove);
                     }
                     else
                     {
-                        PlacePreviewPiece(currSquare, validMove);
+                        PlacePreviewPiece(currSquare, availableMove);
                     }
 
                     //Set Changed Direction Flag
-                    if (SelectedPiece.CurrentDirection != Move.Direction.NONE && SelectedPiece.CurrentDirection != validMove.Dir)
+                    if (SelectedPiece.CurrentDirection != Move.Direction.NONE && SelectedPiece.CurrentDirection != availableMove.Dir)
                     {
                         SelectedPiece.HasChangedDirection = true;
                     }
 
-                    SelectedPiece.CurrentDirection = validMove.Dir;
+                    SelectedPiece.CurrentDirection = availableMove.Dir;
                     currSquare.CanMoveTo = false;
-                    
-                    //MoveCountLabel.text = SelectedPiece.MovesRemaining.ToString();
-                    
+                                        
                     if (SelectedPiece.MovesRemaining > 0)
                     {
-                        SelectedPiece.PreviewMoves.Push(validMove);
+                        SelectedPiece.PreviewMoves.Push(availableMove);
                         if(!ActionPieceWasPlaced || SelectedPiece.PieceType == Piece.TypeOfPiece.Queen)
-                            SelectedPiece.GetAvailableMoves();
+                            SelectedPiece.UpdateAvailableMoves();
                     }
                     else if (SelectedPiece.MovesRemaining == 0)
                     {
-                        SelectedPiece.PreviewMoves.Push(validMove);
-                        SelectedPiece.ClearHighlights();
-                    }
-                    else
-                    {
+                        SelectedPiece.PreviewMoves.Push(availableMove);
                         SelectedPiece.ClearHighlights();
                     }
                 }

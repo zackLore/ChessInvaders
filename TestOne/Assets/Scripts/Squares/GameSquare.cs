@@ -26,32 +26,45 @@ namespace Assets.Scripts
         // ****************************************************
         // Public Methods
         // ****************************************************
-
-        public bool ContainsEnemyPiece(Game gameRef)
+        public List<T> GetChildrenComponentsOfType<T>()
         {
-            if (gameObject.transform.childCount <= 0)
-            {
-                return false;
-            }
+            List<T> components = new List<T>();
 
             for (int i = 0; i < gameObject.transform.childCount; i++)
             {
-                //Debug.Log(square.transform.GetChild(i));
-                try
+                T temp = gameObject.transform.GetChild(i).GetComponent<T>();
+                if (temp != null)
                 {
-                    Piece temp = gameObject.transform.GetChild(i).GetComponent<Piece>();
-                    if (temp != null)
-                    {
-                        if (temp.Owner != gameRef.CurrentTurn)
-                        {
-                            //Debug.Log("EnemyPiece temp: " + temp);
-                            return true;
-                        }
-                    }
+                    components.Add(temp);
                 }
-                catch (Exception)
+            }
+
+            return components;
+        }
+
+        public bool ContainsEnemyPiece()
+        {
+            List<Piece> pieces = GetChildrenComponentsOfType<Piece>();
+
+            foreach (Piece piece in pieces)
+            {
+                if (piece.Owner != GameRef.CurrentTurn)
                 {
-                    return false;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool ContainsFriendlyPiece()
+        {
+            List<Piece> pieces = GetChildrenComponentsOfType<Piece>();
+
+            foreach (Piece piece in pieces)
+            {
+                if (piece.Owner == GameRef.CurrentTurn)
+                {
+                    return true;
                 }
             }
             return false;
@@ -59,30 +72,26 @@ namespace Assets.Scripts
 
         public bool ContainsPreviewPiece()
         {
-            if (gameObject.transform.childCount <= 0)
+            List<PreviewPiece> previewPieces = GetChildrenComponentsOfType<PreviewPiece>();
+            return (previewPieces.Count() > 0);
+        }
+
+        public Move GetMoveToHere(Move.Direction direction)
+        {
+            Piece piece = null;
+            List<Piece> piecesInThisSquare = GetChildrenComponentsOfType<Piece>();
+
+            if (piecesInThisSquare.Count() > 0)
             {
-                return false;
+                piece = piecesInThisSquare[0];
             }
 
-            for (int i = 0; i < gameObject.transform.childCount; i++)
-            {
-                //Debug.Log(square.transform.GetChild(i));
-                try
-                {
-                    PreviewPiece temp = gameObject.transform.GetChild(i).GetComponent<PreviewPiece>();
-                    if (temp != null)
-                    {
-                        //Debug.Log("PreviewPiece temp: " + temp);
-                        return true;
-                    }
-                }
-                catch (Exception)
-                {
-                    return false;
-                }
-            }
-            return false;
+            return new Move(    gameObject.transform.position, 
+                                Coord, 
+                                direction,
+                                piece);
         }
+        
 
         // ****************************************************
         // Private Methods
@@ -98,12 +107,39 @@ namespace Assets.Scripts
 
         private void HandleMove()
         {
-            GameRef.SetMovePiece();
+            if (ContainsPreviewPiece())
+            {
+                // back out the preview moves so this is the last one
+            }
+            else if (ContainsEnemyPiece())
+            {
+                // TODO: figure out how to handle move onto enemy piece
+            }
+            else if (ContainsFriendlyPiece())
+            {
+                // Do nothing. The piece will handle it itself
+            }
+            else if (IsValidPreviewMove())
+            {
+                // is this square a valid preview square for the currently selected piece?
+                GameRef.SetMovePiece(this);
+            }
+            else
+            {
+                // deselect the currently selected piece
+            }
         }
 
         private void HandleAttack()
         {
             //  End attack mode?
+        }
+
+        private bool IsValidPreviewMove()
+        {
+            return  (GameRef != null) &&
+                    (GameRef.SelectedPiece != null) &&
+                    GameRef.SelectedPiece.GetAvailableMoveAtCoordinate(Coord) != null;
         }
 
         // ****************************************************

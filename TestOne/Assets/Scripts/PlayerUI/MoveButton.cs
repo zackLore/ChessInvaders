@@ -86,7 +86,7 @@ namespace Assets.Scripts
             {
                 GameRef.CurrentPlayerActionMode = PlayerActionMode.kMove;
                 playerUI.UpdateUI(null);
-                currentPiece.GetAvailableMoves();
+                currentPiece.UpdateAvailableMoves();
             }
         }
 

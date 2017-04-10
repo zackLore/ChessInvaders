@@ -81,7 +81,7 @@ namespace Assets.Scripts
         // ****************************************************
         // Degug Helpers
         // ****************************************************
-        public static void ShowMoves(List<Move> moves)
+        public static void LogMoves(List<Move> moves)
         {
             foreach (Move move in moves)
             {
@@ -89,7 +89,7 @@ namespace Assets.Scripts
             }
         }
 
-        public static void ShowMoves(Stack<Move> moves)
+        public static void LogMoves(Stack<Move> moves)
         {
             foreach (Move move in moves)
             {

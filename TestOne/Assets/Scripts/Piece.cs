@@ -300,7 +300,7 @@ namespace Assets.Scripts
 
         #endregion //   Piece Highlight Methods
 
-        public Boolean IsOwnedByCurrentTurnPlayer()
+        public bool IsOwnedByCurrentTurnPlayer()
         {
             return (Owner.PlayerNumber == gameRef.CurrentTurn.PlayerNumber);
         }
@@ -315,115 +315,16 @@ namespace Assets.Scripts
             GameRef.UpdateMoveLabel();
         }
 
-        public void GetAvailableMoves()
+        public Move GetAvailableMoveAtCoordinate(Structs.Coordinate currCoord)
+        {
+            return AvailableMoves.Find(x => (x.Coord.Equals(currCoord) == true) && ((x.PieceAtPosition == null) || (x.PieceAtPosition.IsOwnedByCurrentTurnPlayer() == false)));
+        }
+
+        public void UpdateAvailableMoves()
         {
             ClearHighlights();
             AvailableMoves.Clear();
-
-            switch(PieceType)
-            {
-                case TypeOfPiece.Fighter:
-                    try
-                    {
-                        if (!HasChangedDirection || CurrentDirection == Move.Direction.NONE)
-                        {
-                            AvailableMoves = GetMovesAllDirections();
-                        }
-                        else
-                        {
-                            AvailableMoves = GetMovesAllDirections().Where(x => x.Dir == CurrentDirection).ToList();
-                        }
-                        //Utils.ShowMoves(AvailableMoves);
-                    }
-                    catch (Exception)
-                    {
-                        throw ;
-                    }
-                    break;
-                case TypeOfPiece.Defender:
-                    try
-                    {
-                        if (CurrentDirection == Move.Direction.NONE)
-                        {
-                            AvailableMoves = GetMovesAllDirections();
-                        }
-                        else
-                        {
-                            AvailableMoves = GetMovesAllDirections().Where(x => x.Dir == CurrentDirection).ToList();
-                        }
-                        //Utils.ShowMoves(AvailableMoves);
-                    }
-                    catch (Exception)
-                    {
-                        throw;
-                    }
-                    break;
-                case TypeOfPiece.Drone:
-                    try
-                    {
-                        if (CurrentDirection == Move.Direction.NONE)
-                        {
-                            AvailableMoves = GetMovesNoDiagonals();
-                        }
-                        else
-                        {
-                            AvailableMoves = GetMovesNoDiagonals().Where(x => x.Dir == CurrentDirection).ToList();
-                        }
-                        //Utils.ShowMoves(AvailableMoves);
-                    }
-                    catch (Exception)
-                    {
-                        throw;
-                    }
-                    break;
-                case TypeOfPiece.Bomb:
-                    try
-                    {
-                        if (!HasChangedDirection || CurrentDirection == Move.Direction.NONE)
-                        {
-                            AvailableMoves = GetMovesAllDirections();
-                        }
-                        else
-                        {
-                            AvailableMoves = GetMovesAllDirections().Where(x => x.Dir == CurrentDirection).ToList();
-                        }
-                        //Utils.ShowMoves(AvailableMoves);
-                    }
-                    catch (Exception)
-                    {
-                        throw;
-                    }
-                    break;
-                case TypeOfPiece.Queen:
-                    try
-                    {
-                        if (CurrentDirection == Move.Direction.NONE)
-                        {
-                            AvailableMoves = GetMovesAllDirections();
-                        }
-                        else
-                        {
-                            AvailableMoves = GetMovesAllDirections().Where(x => x.Dir == CurrentDirection).ToList();
-                        }
-                        //Utils.ShowMoves(AvailableMoves);
-                    }
-                    catch (Exception)
-                    {
-                        throw;
-                    }
-                    break;
-                case TypeOfPiece.King:
-                    try
-                    {
-                        AvailableMoves = GetMovesAllDirections();
-                        //Utils.ShowMoves(AvailableMoves);
-                    }
-                    catch (Exception)
-                    {
-                        throw;
-                    }
-                    break;
-            }
+            AvailableMoves = GetAvailableMoves();
             SetHighlights();
         }
         
@@ -596,7 +497,7 @@ namespace Assets.Scripts
             if (CurrentMoveCount > 0)
             {
                 ClearValues();
-                GetAvailableMoves();
+                UpdateAvailableMoves();
             }
         }
 
@@ -624,7 +525,7 @@ namespace Assets.Scripts
         // ****************************************************
         // Private Methods
         // ****************************************************
-        private Move CheckMove(Structs.Coordinate currCoordinate, Move.Direction direction)
+        private Move GetAvailableMove(Structs.Coordinate currCoordinate, Move.Direction direction)
         {
             Structs.Coordinate newCoordinate = currCoordinate + Move.Offsets[(int)direction];
 
@@ -632,27 +533,18 @@ namespace Assets.Scripts
             {
                 return null;
             }
-
-            GameSquare square = gameRef.GetGameSquare(newCoordinate);
-            Vector3 squarePos = square.gameObject.transform.position;
-            Piece attacker = null;
-
-            if (square.transform.childCount > 0)
-            {
-                attacker = square.gameObject.transform.GetChild(0).GetComponent<Piece>();
-            }
-
-            return new Move(squarePos, newCoordinate, direction, attacker);
+            
+            return gameRef.GetGameSquare(newCoordinate).GetMoveToHere(direction);
         }
 
-        private List<Move> GetMoves(Move.Direction[] directionArray)
+        private List<Move> GetAvailableMovesByDirectionArray(Move.Direction[] directionArray)
         {
             Structs.Coordinate testCoord = (PreviewMoves.Count() > 0) ? PreviewMoves.Peek().Coord : Coord;
             List<Move> moves = new List<Move>();
 
             for (int dirIndex = 0; dirIndex < directionArray.Length; ++dirIndex)
             {
-                Move newMove = CheckMove(testCoord, directionArray[dirIndex]);
+                Move newMove = GetAvailableMove(testCoord, directionArray[dirIndex]);
                 if (newMove != null)
                 {
                     moves.Add(newMove);
@@ -661,15 +553,69 @@ namespace Assets.Scripts
 
             return moves;
         }
-
-        private List<Move> GetMovesAllDirections()
+        
+        private List<Move> GetAvailableMoves()
         {
-            return GetMoves(Move.Directions_All);
-        }
+            List<Move> moves = new List<Move>();
 
-        private List<Move> GetMovesNoDiagonals()
-        {
-            return GetMoves(Move.Directions_NoDiagonals);
+            switch (PieceType)
+            {
+                case TypeOfPiece.Fighter:
+                    if (!HasChangedDirection || CurrentDirection == Move.Direction.NONE)
+                    {
+                        moves = GetAvailableMovesByDirectionArray(Move.Directions_All);
+                    }
+                    else
+                    {
+                        moves = GetAvailableMovesByDirectionArray(Move.Directions_All).Where(x => x.Dir == CurrentDirection).ToList();
+                    }
+                    break;
+                case TypeOfPiece.Defender:
+                    if (CurrentDirection == Move.Direction.NONE)
+                    {
+                        moves = GetAvailableMovesByDirectionArray(Move.Directions_All);
+                    }
+                    else
+                    {
+                        moves = GetAvailableMovesByDirectionArray(Move.Directions_All).Where(x => x.Dir == CurrentDirection).ToList();
+                    }
+                    break;
+                case TypeOfPiece.Drone:
+                    if (CurrentDirection == Move.Direction.NONE)
+                    {
+                        moves = GetAvailableMovesByDirectionArray(Move.Directions_NoDiagonals);
+                    }
+                    else
+                    {
+                        moves = GetAvailableMovesByDirectionArray(Move.Directions_NoDiagonals).Where(x => x.Dir == CurrentDirection).ToList();
+                    }
+                    break;
+                case TypeOfPiece.Bomb:
+                    if (!HasChangedDirection || CurrentDirection == Move.Direction.NONE)
+                    {
+                        moves = GetAvailableMovesByDirectionArray(Move.Directions_All);
+                    }
+                    else
+                    {
+                        moves = GetAvailableMovesByDirectionArray(Move.Directions_All).Where(x => x.Dir == CurrentDirection).ToList();
+                    }
+                    break;
+                case TypeOfPiece.Queen:
+                    if (CurrentDirection == Move.Direction.NONE)
+                    {
+                        moves = GetAvailableMovesByDirectionArray(Move.Directions_All);
+                    }
+                    else
+                    {
+                        moves = GetAvailableMovesByDirectionArray(Move.Directions_All).Where(x => x.Dir == CurrentDirection).ToList();
+                    }
+                    break;
+                case TypeOfPiece.King:
+                    moves = GetAvailableMovesByDirectionArray(Move.Directions_All);
+                    break;
+            }
+            //Utils.LogMoves(moves);
+            return moves;
         }
 
         private void HandlePieceSelectionSound()

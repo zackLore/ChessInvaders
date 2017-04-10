@@ -126,7 +126,7 @@ namespace Assets.Scripts
                     {                       
                         GameRef.GetGameSquare(temp.Coord).CanRemove = false;
                         GameRef.SelectedPiece.CurrentDirection = CurrentMove.Dir;
-                        GameRef.SelectedPiece.GetAvailableMoves();
+                        GameRef.SelectedPiece.UpdateAvailableMoves();
                         GameRef.UpdateMoveLabel();
                         GameObject.Destroy(this.gameObject);
                         return;
