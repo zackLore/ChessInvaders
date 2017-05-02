@@ -25,13 +25,7 @@ namespace Assets.Scripts
             Drone,
             Bomb
         }
-
-        //***** Colors for Bomb
-        private Color[] bombColors = { Color.cyan, Color.gray, Color.magenta, Color.red, Color.yellow, Color.white };
-        private int colorIndex = 0;
-        private int colorSwitchCounter = 0;
-        private int colorSwitchMax = 15;
-
+        
         public TypeOfPiece PieceType = TypeOfPiece.None;
 
         public bool Active = true;
@@ -40,8 +34,7 @@ namespace Assets.Scripts
         public bool Moving = false;
         public bool FinishedMoving = true;
         public bool Selected = false;
-        public bool HasChangedDirection = false;
-        
+        public bool HasChangedDirection = false;        
 
         public int AttackLimit = 0;
         public int CurrentAttack = 0;
@@ -158,20 +151,20 @@ namespace Assets.Scripts
 
         void Update()
         {
-            if (PieceType == TypeOfPiece.Bomb)
-            {
-                if (colorSwitchCounter < colorSwitchMax)
-                {
-                    colorSwitchCounter++;
-                }
-                else
-                {
-                    colorSwitchCounter = 0;
+            //if (PieceType == TypeOfPiece.Bomb)
+            //{
+            //    if (colorSwitchCounter < colorSwitchMax)
+            //    {
+            //        colorSwitchCounter++;
+            //    }
+            //    else
+            //    {
+            //        colorSwitchCounter = 0;
 
-                    colorIndex = colorIndex < bombColors.Length - 1 ? colorIndex + 1 : 0;
-                    GetComponent<SpriteRenderer>().color = bombColors[colorIndex];
-                }
-            }
+            //        colorIndex = colorIndex < bombColors.Length - 1 ? colorIndex + 1 : 0;
+            //        GetComponent<SpriteRenderer>().color = bombColors[colorIndex];
+            //    }
+            //}
         }
 
         void FixedUpdate()
@@ -337,7 +330,7 @@ namespace Assets.Scripts
             MoveDice = (Dice)((GameObject)Instantiate(Resources.Load(@"Prefabs/Dice"))).GetComponent<Dice>();
             MoveDice.transform.parent = this.transform;
 
-            SetDice();
+            //SetDice();
         }
         
         public bool PreviewMoveExists(Move move)
