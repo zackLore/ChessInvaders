@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using Assets.Scripts;
+using System.Linq;
 
 public class Fighter : Piece {
 
-    public void Awake()
+    public new void Start()
     {
+        base.Start();
         InitializePiece();
     }
 
@@ -19,5 +21,21 @@ public class Fighter : Piece {
         AttackDice.InitDice(1, 20);
         DefendDice.InitDice(1, 6);
         MoveDice.InitDice(1, 6);
+    }
+
+    private new List<Move> GetAvailableMoves()
+    {
+        List<Move> moves = new List<Move>();
+
+        if (!HasChangedDirection || CurrentDirection == Move.Direction.NONE)
+        {
+            moves = GetAvailableMovesByDirectionArray(Move.Directions_All);
+        }
+        else
+        {
+            moves = GetAvailableMovesByDirectionArray(Move.Directions_All).Where(x => x.Dir == CurrentDirection).ToList();
+        }
+        
+        return moves;
     }
 }

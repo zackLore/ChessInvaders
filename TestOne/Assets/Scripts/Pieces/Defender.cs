@@ -6,8 +6,9 @@ using Assets.Scripts;
 
 public class Defender : Piece {
 
-    public void Awake()
+    public new void Start()
     {
+        base.Start();
         InitializePiece();
     }
 

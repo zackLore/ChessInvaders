@@ -12,8 +12,9 @@ public class Bomb : Piece {
     private int colorSwitchCounter = 0;
     private int colorSwitchMax = 15;
 
-    public void Awake()
+    public new void Start()
     {
+        base.Start();
         InitializePiece();
     }
 

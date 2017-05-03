@@ -6,8 +6,9 @@ using Assets.Scripts;
 
 public class Queen : Piece {
 
-    public void Awake()
+    public new void Start()
     {
+        base.Start();
         InitializePiece();
     }
 

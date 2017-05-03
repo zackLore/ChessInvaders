@@ -118,7 +118,7 @@ namespace Assets.Scripts
             InitClickTimes();
         }
 
-        void Start()
+        public void Start()
         {
             AvailableMoves = new List<Move>();
             PreviewMoves = new Stack<Move>();
@@ -359,124 +359,125 @@ namespace Assets.Scripts
             MovesRemaining = CurrentMoveCount;
         }
 
-        public void SetDice()
-        {
-            switch (PieceType)
-            {
-                case TypeOfPiece.Fighter:
-                    AttackLimit = 20;
-                    DefendLimit = 6;
-                    MoveLimit = 6;
-                    AttackDice.InitDice(1, 20);
-                    DefendDice.InitDice(1, 6);
-                    MoveDice.InitDice(1, 6);
-                    break;
-                case TypeOfPiece.Defender:
-                    AttackLimit = 6;
-                    DefendLimit = 20;
-                    MoveLimit = 4;
-                    AttackDice.InitDice(1, 6);
-                    DefendDice.InitDice(1, 20);
-                    MoveDice.InitDice(1, 4);
-                    break;
-                case TypeOfPiece.Drone:
-                    AttackLimit = 10;
-                    DefendLimit = 10;
-                    MoveLimit = 6;
-                    AttackDice.InitDice(1, 10);
-                    DefendDice.InitDice(1, 10);
-                    MoveDice.InitDice(1, 6);
-                    break;
-                case TypeOfPiece.Bomb:
-                    AttackLimit = 20;
-                    DefendLimit = 6;
-                    MoveLimit = 6;
-                    MoveDice.InitDice(1, 6);
-                    break;
-                case TypeOfPiece.Queen:
-                    AttackLimit = 20;
-                    DefendLimit = 6;
-                    MoveLimit = 6;
-                    MoveDice.InitDice(3, 6);
-                    AttackDice.InitDice(3, 6);
-                    DefendDice.InitDice(3, 6);
-                    break;
-                case TypeOfPiece.King:
-                    AttackLimit = 100;
-                    DefendLimit = 0;
-                    MoveLimit = 1;
-                    MoveDice.InitDice(1, 1);
-                    AttackDice.InitDice(1, 100, 99);
-                    DefendDice.InitDice(1, 0, 0);
-                    break;
-            }
-        }
+        //public void SetDice()
+        //{
+        //    switch (PieceType)
+        //    {
+        //        case TypeOfPiece.Fighter:
+        //            AttackLimit = 20;
+        //            DefendLimit = 6;
+        //            MoveLimit = 6;
+        //            AttackDice.InitDice(1, 20);
+        //            DefendDice.InitDice(1, 6);
+        //            MoveDice.InitDice(1, 6);
+        //            break;
+        //        case TypeOfPiece.Defender:
+        //            AttackLimit = 6;
+        //            DefendLimit = 20;
+        //            MoveLimit = 4;
+        //            AttackDice.InitDice(1, 6);
+        //            DefendDice.InitDice(1, 20);
+        //            MoveDice.InitDice(1, 4);
+        //            break;
+        //        case TypeOfPiece.Drone:
+        //            AttackLimit = 10;
+        //            DefendLimit = 10;
+        //            MoveLimit = 6;
+        //            AttackDice.InitDice(1, 10);
+        //            DefendDice.InitDice(1, 10);
+        //            MoveDice.InitDice(1, 6);
+        //            break;
+        //        case TypeOfPiece.Bomb:
+        //            AttackLimit = 20;
+        //            DefendLimit = 6;
+        //            MoveLimit = 6;
+        //            MoveDice.InitDice(1, 6);
+        //            break;
+        //        case TypeOfPiece.Queen:
+        //            AttackLimit = 20;
+        //            DefendLimit = 6;
+        //            MoveLimit = 6;
+        //            MoveDice.InitDice(3, 6);
+        //            AttackDice.InitDice(3, 6);
+        //            DefendDice.InitDice(3, 6);
+        //            break;
+        //        case TypeOfPiece.King:
+        //            AttackLimit = 100;
+        //            DefendLimit = 0;
+        //            MoveLimit = 1;
+        //            MoveDice.InitDice(1, 1);
+        //            AttackDice.InitDice(1, 100, 99);
+        //            DefendDice.InitDice(1, 0, 0);
+        //            break;
+        //    }
+        //}
 
-        public void SetPieceType(TypeOfPiece type)
-        {
-            PieceType = type;
-            if (AttackDice == null || DefendDice == null || MoveDice == null)
-            {
-                return;
-            }
-            switch (PieceType)
-            {
-                case TypeOfPiece.Fighter:
-                    AttackLimit = 20;
-                    DefendLimit = 6;
-                    MoveLimit   = 6;
-                    AttackDice.InitDice(1, 20);
-                    DefendDice.InitDice(1, 6);
-                    MoveDice.InitDice(1, 6);
-                    break;
-                case TypeOfPiece.Defender:
-                    AttackLimit = 6;
-                    DefendLimit = 20;
-                    MoveLimit   = 4;
-                    AttackDice.InitDice(1, 6);
-                    DefendDice.InitDice(1, 20);
-                    MoveDice.InitDice(1, 4);
-                    break;
-                case TypeOfPiece.Drone:
-                    AttackLimit = 10;
-                    DefendLimit = 10;
-                    MoveLimit   = 6;
-                    AttackDice.InitDice(1, 10);
-                    DefendDice.InitDice(1, 10);
-                    MoveDice.InitDice(1, 6);
-                    break;
-                case TypeOfPiece.Bomb:
-                    AttackLimit = 20;
-                    DefendLimit = 6;
-                    MoveLimit   = 6;
-                    MoveDice.InitDice(1, 6);
-                    AttackDice.InitDice(1, 100, 99);
-                    DefendDice.InitDice(1, 100, 99);
-                    break;
-                case TypeOfPiece.Queen:
-                    AttackLimit = 20;
-                    DefendLimit = 6;
-                    MoveLimit   = 6;
-                    MoveDice.InitDice(3, 6);
-                    AttackDice.InitDice(3, 6);
-                    DefendDice.InitDice(3, 6);
-                    break;
-                case TypeOfPiece.King:
-                    AttackLimit = 20;
-                    DefendLimit = 6;
-                    MoveLimit   = 6;
-                    MoveDice.InitDice(1, 1);
-                    AttackDice.InitDice(1, 100, 99);
-                    DefendDice.InitDice(1, 0, 0);
-                    break;
-            }        
-        }
+        //public void SetPieceType(TypeOfPiece type)
+        //{
+        //    PieceType = type;
+        //    if (AttackDice == null || DefendDice == null || MoveDice == null)
+        //    {
+        //        return;
+        //    }
+        //    switch (PieceType)
+        //    {
+        //        case TypeOfPiece.Fighter:
+        //            AttackLimit = 20;
+        //            DefendLimit = 6;
+        //            MoveLimit   = 6;
+        //            AttackDice.InitDice(1, 20);
+        //            DefendDice.InitDice(1, 6);
+        //            MoveDice.InitDice(1, 6);
+        //            break;
+        //        case TypeOfPiece.Defender:
+        //            AttackLimit = 6;
+        //            DefendLimit = 20;
+        //            MoveLimit   = 4;
+        //            AttackDice.InitDice(1, 6);
+        //            DefendDice.InitDice(1, 20);
+        //            MoveDice.InitDice(1, 4);
+        //            break;
+        //        case TypeOfPiece.Drone:
+        //            AttackLimit = 10;
+        //            DefendLimit = 10;
+        //            MoveLimit   = 6;
+        //            AttackDice.InitDice(1, 10);
+        //            DefendDice.InitDice(1, 10);
+        //            MoveDice.InitDice(1, 6);
+        //            break;
+        //        case TypeOfPiece.Bomb:
+        //            AttackLimit = 20;
+        //            DefendLimit = 6;
+        //            MoveLimit   = 6;
+        //            MoveDice.InitDice(1, 6);
+        //            AttackDice.InitDice(1, 100, 99);
+        //            DefendDice.InitDice(1, 100, 99);
+        //            break;
+        //        case TypeOfPiece.Queen:
+        //            AttackLimit = 20;
+        //            DefendLimit = 6;
+        //            MoveLimit   = 6;
+        //            MoveDice.InitDice(3, 6);
+        //            AttackDice.InitDice(3, 6);
+        //            DefendDice.InitDice(3, 6);
+        //            break;
+        //        case TypeOfPiece.King:
+        //            AttackLimit = 20;
+        //            DefendLimit = 6;
+        //            MoveLimit   = 6;
+        //            MoveDice.InitDice(1, 1);
+        //            AttackDice.InitDice(1, 100, 99);
+        //            DefendDice.InitDice(1, 0, 0);
+        //            break;
+        //    }        
+        //}
         
+        //Needs to be moved - not sure how to handle with new Class set up.  Hard to think in the car...
         public void TransformIntoBomb()
         {
             if (PieceType == TypeOfPiece.Drone)
             {
-                SetPieceType(TypeOfPiece.Bomb);
+                //SetPieceType(TypeOfPiece.Bomb);
                 //Change Image
             }
         }
@@ -516,9 +517,9 @@ namespace Assets.Scripts
 
 
         // ****************************************************
-        // Private Methods
+        // Protected Methods
         // ****************************************************
-        private Move GetAvailableMove(Structs.Coordinate currCoordinate, Move.Direction direction)
+        protected Move GetAvailableMove(Structs.Coordinate currCoordinate, Move.Direction direction)
         {
             Structs.Coordinate newCoordinate = currCoordinate + Move.Offsets[(int)direction];
 
@@ -530,7 +531,7 @@ namespace Assets.Scripts
             return gameRef.GetGameSquare(newCoordinate).GetMoveToHere(direction);
         }
 
-        private List<Move> GetAvailableMovesByDirectionArray(Move.Direction[] directionArray)
+        protected List<Move> GetAvailableMovesByDirectionArray(Move.Direction[] directionArray)
         {
             Structs.Coordinate testCoord = (PreviewMoves.Count() > 0) ? PreviewMoves.Peek().Coord : Coord;
             List<Move> moves = new List<Move>();
@@ -546,8 +547,8 @@ namespace Assets.Scripts
 
             return moves;
         }
-        
-        private List<Move> GetAvailableMoves()
+
+        protected List<Move> GetAvailableMoves()
         {
             List<Move> moves = new List<Move>();
 
@@ -611,7 +612,7 @@ namespace Assets.Scripts
             return moves;
         }
 
-        private void HandlePieceSelectionSound()
+        protected void HandlePieceSelectionSound()
         {
             if (PieceType == TypeOfPiece.Bomb)
             {
@@ -627,7 +628,7 @@ namespace Assets.Scripts
             }
         }
 
-        private void HandleSelect()
+        protected void HandleSelect()
         {
             //  if this piece is yours
             if (Owner == GameRef.CurrentTurn)
@@ -699,7 +700,7 @@ namespace Assets.Scripts
             }
         }
 
-        private void HandleMove()
+        protected void HandleMove()
         {
             if (gameRef.SelectedPiece == this)
             {
@@ -714,7 +715,7 @@ namespace Assets.Scripts
             }
         }
 
-        private void HandleAttack()
+        protected void HandleAttack()
         {
             //  if piece is yours
             //      can you attack your own piece?

@@ -6,10 +6,11 @@ using Assets.Scripts;
 
 public class Drone : Piece {
 
-    public void Awake()
+    public new void Start()
     {
+        base.Start();
         InitializePiece();
-    } 
+    }
 
     public void InitializePiece()
     {
