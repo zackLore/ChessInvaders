@@ -21,4 +21,13 @@ public class King : Piece {
         AttackDice.InitDice(1, 100, 99);
         DefendDice.InitDice(1, 0, 0);
     }
+
+    protected override List<Move> GetAvailableMoves()
+    {
+        List<Move> moves = new List<Move>();
+
+        moves = GetAvailableMovesByDirectionArray(Move.Directions_All);
+
+        return moves;
+    }
 }

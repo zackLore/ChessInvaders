@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using Assets.Scripts;
+using System.Linq;
 
 public class Drone : Piece {
 
@@ -20,5 +21,21 @@ public class Drone : Piece {
         AttackDice.InitDice(1, 10);
         DefendDice.InitDice(1, 10);
         MoveDice.InitDice(1, 6);
+    }
+
+    protected override List<Move> GetAvailableMoves()
+    {
+        List<Move> moves = new List<Move>();
+
+        if (CurrentDirection == Move.Direction.NONE)
+        {
+            moves = GetAvailableMovesByDirectionArray(Move.Directions_NoDiagonals);
+        }
+        else
+        {
+            moves = GetAvailableMovesByDirectionArray(Move.Directions_NoDiagonals).Where(x => x.Dir == CurrentDirection).ToList();
+        }
+
+        return moves;
     }
 }

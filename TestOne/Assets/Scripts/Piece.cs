@@ -482,7 +482,7 @@ namespace Assets.Scripts
             }
         }
 
-        public void Select()
+        public virtual void Select()
         {
             Selected = true;
             HandlePieceSelectionSound();
@@ -548,83 +548,88 @@ namespace Assets.Scripts
             return moves;
         }
 
-        protected List<Move> GetAvailableMoves()
+        protected virtual List<Move> GetAvailableMoves()
         {
             List<Move> moves = new List<Move>();
 
-            switch (PieceType)
-            {
-                case TypeOfPiece.Fighter:
-                    if (!HasChangedDirection || CurrentDirection == Move.Direction.NONE)
-                    {
-                        moves = GetAvailableMovesByDirectionArray(Move.Directions_All);
-                    }
-                    else
-                    {
-                        moves = GetAvailableMovesByDirectionArray(Move.Directions_All).Where(x => x.Dir == CurrentDirection).ToList();
-                    }
-                    break;
-                case TypeOfPiece.Defender:
-                    if (CurrentDirection == Move.Direction.NONE)
-                    {
-                        moves = GetAvailableMovesByDirectionArray(Move.Directions_All);
-                    }
-                    else
-                    {
-                        moves = GetAvailableMovesByDirectionArray(Move.Directions_All).Where(x => x.Dir == CurrentDirection).ToList();
-                    }
-                    break;
-                case TypeOfPiece.Drone:
-                    if (CurrentDirection == Move.Direction.NONE)
-                    {
-                        moves = GetAvailableMovesByDirectionArray(Move.Directions_NoDiagonals);
-                    }
-                    else
-                    {
-                        moves = GetAvailableMovesByDirectionArray(Move.Directions_NoDiagonals).Where(x => x.Dir == CurrentDirection).ToList();
-                    }
-                    break;
-                case TypeOfPiece.Bomb:
-                    if (!HasChangedDirection || CurrentDirection == Move.Direction.NONE)
-                    {
-                        moves = GetAvailableMovesByDirectionArray(Move.Directions_All);
-                    }
-                    else
-                    {
-                        moves = GetAvailableMovesByDirectionArray(Move.Directions_All).Where(x => x.Dir == CurrentDirection).ToList();
-                    }
-                    break;
-                case TypeOfPiece.Queen:
-                    if (CurrentDirection == Move.Direction.NONE)
-                    {
-                        moves = GetAvailableMovesByDirectionArray(Move.Directions_All);
-                    }
-                    else
-                    {
-                        moves = GetAvailableMovesByDirectionArray(Move.Directions_All).Where(x => x.Dir == CurrentDirection).ToList();
-                    }
-                    break;
-                case TypeOfPiece.King:
-                    moves = GetAvailableMovesByDirectionArray(Move.Directions_All);
-                    break;
-            }
+            //switch (PieceType)
+            //{
+                //case TypeOfPiece.Fighter:
+                //    if (!HasChangedDirection || CurrentDirection == Move.Direction.NONE)
+                //    {
+                //        moves = GetAvailableMovesByDirectionArray(Move.Directions_All);
+                //    }
+                //    else
+                //    {
+                //        moves = GetAvailableMovesByDirectionArray(Move.Directions_All).Where(x => x.Dir == CurrentDirection).ToList();
+                //    }
+                //    break;
+                //case TypeOfPiece.Defender:
+                //    if (CurrentDirection == Move.Direction.NONE)
+                //    {
+                //        moves = GetAvailableMovesByDirectionArray(Move.Directions_All);
+                //    }
+                //    else
+                //    {
+                //        moves = GetAvailableMovesByDirectionArray(Move.Directions_All).Where(x => x.Dir == CurrentDirection).ToList();
+                //    }
+                //    break;
+                //case TypeOfPiece.Drone:
+                //    if (CurrentDirection == Move.Direction.NONE)
+                //    {
+                //        moves = GetAvailableMovesByDirectionArray(Move.Directions_NoDiagonals);
+                //    }
+                //    else
+                //    {
+                //        moves = GetAvailableMovesByDirectionArray(Move.Directions_NoDiagonals).Where(x => x.Dir == CurrentDirection).ToList();
+                //    }
+                //    break;
+                //case TypeOfPiece.Bomb:
+                //    if (!HasChangedDirection || CurrentDirection == Move.Direction.NONE)
+                //    {
+                //        moves = GetAvailableMovesByDirectionArray(Move.Directions_All);
+                //    }
+                //    else
+                //    {
+                //        moves = GetAvailableMovesByDirectionArray(Move.Directions_All).Where(x => x.Dir == CurrentDirection).ToList();
+                //    }
+                //    break;
+                //case TypeOfPiece.Queen:
+                //    if (CurrentDirection == Move.Direction.NONE)
+                //    {
+                //        moves = GetAvailableMovesByDirectionArray(Move.Directions_All);
+                //    }
+                //    else
+                //    {
+                //        moves = GetAvailableMovesByDirectionArray(Move.Directions_All).Where(x => x.Dir == CurrentDirection).ToList();
+                //    }
+                //    break;
+                //case TypeOfPiece.King:
+                //    moves = GetAvailableMovesByDirectionArray(Move.Directions_All);
+                //    break;
+            //}
             //Utils.LogMoves(moves);
             return moves;
         }
 
         protected void HandlePieceSelectionSound()
         {
-            if (PieceType == TypeOfPiece.Bomb)
+            //if (PieceType == TypeOfPiece.Bomb)
+            //{
+            //    //Play bomb sound
+            //    GameRef.soundManager.PlaySound(this.gameObject, "8bit bomb beep", true);
+            //}
+            //else
+            //{
+            //    if (GameRef.soundManager != null)
+            //    {
+            //        GameRef.soundManager.StopSound();
+            //    }
+            //}
+
+            if (GameRef.soundManager != null)
             {
-                //Play bomb sound
-                GameRef.soundManager.PlaySound(this.gameObject, "8bit bomb beep", true);
-            }
-            else
-            {
-                if (GameRef.soundManager != null)
-                {
-                    GameRef.soundManager.StopSound();
-                }
+                GameRef.soundManager.StopSound();
             }
         }
 
@@ -718,7 +723,7 @@ namespace Assets.Scripts
         protected void HandleAttack()
         {
             //  if piece is yours
-            //      can you attack your own piece?
+            //      can you attack your own piece? -- No, you cannot.  
             //  if piece is opponents
             //      attack opponent piece
         }

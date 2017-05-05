@@ -23,7 +23,7 @@ public class Fighter : Piece {
         MoveDice.InitDice(1, 6);
     }
 
-    private new List<Move> GetAvailableMoves()
+    protected override List<Move> GetAvailableMoves()
     {
         List<Move> moves = new List<Move>();
 

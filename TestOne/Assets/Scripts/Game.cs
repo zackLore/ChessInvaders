@@ -316,7 +316,8 @@ namespace Assets.Scripts
         public void CompleteAttack()
         {
             //** Check for Win/Loss
-            if (BattleLoser.PieceType == Piece.TypeOfPiece.King)
+            //if (BattleLoser.PieceType == Piece.TypeOfPiece.King)
+            if(BattleLoser.GetType() == typeof(King))
             {
                 //Show Win Screen
                 WinMenu.transform.Find("PlayerLabel").GetComponent<Text>().text = "Player " + CurrentTurn.PlayerNumber;
@@ -328,7 +329,8 @@ namespace Assets.Scripts
             SwapTurns();
             BattleLoser.Active = false;
             BattleLoser.gameObject.SetActive(false);
-            if (p.PieceType == Piece.TypeOfPiece.Bomb)
+            //if (p.PieceType == Piece.TypeOfPiece.Bomb)
+            if(p.GetType() == typeof(Bomb))
             {
                 p.Active = false;
                 p.gameObject.SetActive(false);
@@ -343,7 +345,8 @@ namespace Assets.Scripts
         {
             BattleLoser = SelectedPiece.CurrentMove.PieceAtPosition;
             //** Check for Win/Loss
-            if (BattleLoser.PieceType == Piece.TypeOfPiece.King)
+            //if (BattleLoser.PieceType == Piece.TypeOfPiece.King)
+            if (BattleLoser.GetType() == typeof(King))
             {
                 //Show Win Screen
                 WinMenu.transform.Find("PlayerLabel").GetComponent<Text>().text = "Player " + CurrentTurn.PlayerNumber;
@@ -825,8 +828,11 @@ namespace Assets.Scripts
                 return;
             }
 
-            if (SelectedPiece.PieceType != Piece.TypeOfPiece.Queen)
+            //if (SelectedPiece.PieceType != Piece.TypeOfPiece.Queen)
+            if (SelectedPiece.GetType() != typeof(Queen))
+            {
                 SelectedPiece.MovesRemaining--;
+            }
 
             gameSquare.CanMoveTo = false;
 
