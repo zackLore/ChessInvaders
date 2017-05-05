@@ -1107,7 +1107,7 @@ namespace Assets.Scripts
         public void TransformIntoBomb()
         {
             //Transform Piece
-            SelectedPiece.TransformIntoBomb();
+            SelectedPiece = new Bomb();
             //Switch turns
             SwapTurns();
         }

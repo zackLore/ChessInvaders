@@ -151,20 +151,7 @@ namespace Assets.Scripts
 
         void Update()
         {
-            //if (PieceType == TypeOfPiece.Bomb)
-            //{
-            //    if (colorSwitchCounter < colorSwitchMax)
-            //    {
-            //        colorSwitchCounter++;
-            //    }
-            //    else
-            //    {
-            //        colorSwitchCounter = 0;
 
-            //        colorIndex = colorIndex < bombColors.Length - 1 ? colorIndex + 1 : 0;
-            //        GetComponent<SpriteRenderer>().color = bombColors[colorIndex];
-            //    }
-            //}
         }
 
         void FixedUpdate()
@@ -239,10 +226,6 @@ namespace Assets.Scripts
                     Moving = false;
                 }
             }
-            else
-            {
-                //if (PieceType == TypeOfPiece.King) { GetComponent<Animator>().SetBool("Moving", false); }
-            }
         }
 
         // ****************************************************
@@ -291,7 +274,7 @@ namespace Assets.Scripts
             }
         }
 
-        #endregion //   Piece Highlight Methods
+        #endregion Piece Highlight Methods
 
         public bool IsOwnedByCurrentTurnPlayer()
         {
@@ -473,14 +456,15 @@ namespace Assets.Scripts
         //}
         
         //Needs to be moved - not sure how to handle with new Class set up.  Hard to think in the car...
-        public void TransformIntoBomb()
-        {
-            if (PieceType == TypeOfPiece.Drone)
-            {
-                //SetPieceType(TypeOfPiece.Bomb);
-                //Change Image
-            }
-        }
+
+        //public void TransformIntoBomb()
+        //{
+        //    if (PieceType == TypeOfPiece.Drone)
+        //    {
+        //        //SetPieceType(TypeOfPiece.Bomb);
+        //        //Change Image
+        //    }
+        //}
 
         public virtual void Select()
         {
@@ -550,66 +534,7 @@ namespace Assets.Scripts
 
         protected virtual List<Move> GetAvailableMoves()
         {
-            List<Move> moves = new List<Move>();
-
-            //switch (PieceType)
-            //{
-                //case TypeOfPiece.Fighter:
-                //    if (!HasChangedDirection || CurrentDirection == Move.Direction.NONE)
-                //    {
-                //        moves = GetAvailableMovesByDirectionArray(Move.Directions_All);
-                //    }
-                //    else
-                //    {
-                //        moves = GetAvailableMovesByDirectionArray(Move.Directions_All).Where(x => x.Dir == CurrentDirection).ToList();
-                //    }
-                //    break;
-                //case TypeOfPiece.Defender:
-                //    if (CurrentDirection == Move.Direction.NONE)
-                //    {
-                //        moves = GetAvailableMovesByDirectionArray(Move.Directions_All);
-                //    }
-                //    else
-                //    {
-                //        moves = GetAvailableMovesByDirectionArray(Move.Directions_All).Where(x => x.Dir == CurrentDirection).ToList();
-                //    }
-                //    break;
-                //case TypeOfPiece.Drone:
-                //    if (CurrentDirection == Move.Direction.NONE)
-                //    {
-                //        moves = GetAvailableMovesByDirectionArray(Move.Directions_NoDiagonals);
-                //    }
-                //    else
-                //    {
-                //        moves = GetAvailableMovesByDirectionArray(Move.Directions_NoDiagonals).Where(x => x.Dir == CurrentDirection).ToList();
-                //    }
-                //    break;
-                //case TypeOfPiece.Bomb:
-                //    if (!HasChangedDirection || CurrentDirection == Move.Direction.NONE)
-                //    {
-                //        moves = GetAvailableMovesByDirectionArray(Move.Directions_All);
-                //    }
-                //    else
-                //    {
-                //        moves = GetAvailableMovesByDirectionArray(Move.Directions_All).Where(x => x.Dir == CurrentDirection).ToList();
-                //    }
-                //    break;
-                //case TypeOfPiece.Queen:
-                //    if (CurrentDirection == Move.Direction.NONE)
-                //    {
-                //        moves = GetAvailableMovesByDirectionArray(Move.Directions_All);
-                //    }
-                //    else
-                //    {
-                //        moves = GetAvailableMovesByDirectionArray(Move.Directions_All).Where(x => x.Dir == CurrentDirection).ToList();
-                //    }
-                //    break;
-                //case TypeOfPiece.King:
-                //    moves = GetAvailableMovesByDirectionArray(Move.Directions_All);
-                //    break;
-            //}
-            //Utils.LogMoves(moves);
-            return moves;
+            return new List<Move>();
         }
 
         protected void HandlePieceSelectionSound()
