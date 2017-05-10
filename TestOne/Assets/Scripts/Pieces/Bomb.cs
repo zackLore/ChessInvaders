@@ -43,6 +43,11 @@ public class Bomb : Piece {
         return moves;
     }
 
+    protected override void InitAttack()
+    {
+        gameRef.CompleteBombAttack();
+    }
+
     public override void Select()
     {
         base.Select();

@@ -15,18 +15,18 @@ namespace Assets.Scripts
         // ****************************************************
         // Properties
         // ****************************************************
-        public enum TypeOfPiece
-        {
-            None,
-            Fighter,
-            Defender,
-            King,
-            Queen,
-            Drone,
-            Bomb
-        }
+        //public enum TypeOfPiece
+        //{
+        //    None,
+        //    Fighter,
+        //    Defender,
+        //    King,
+        //    Queen,
+        //    Drone,
+        //    Bomb
+        //}
         
-        public TypeOfPiece PieceType = TypeOfPiece.None;
+        //public TypeOfPiece PieceType = TypeOfPiece.None;
 
         public bool Active = true;
         public bool Dragging = false;
@@ -196,17 +196,7 @@ namespace Assets.Scripts
                                     }
                                 }
                                 gameRef.CurrentPlayerActionMode = PlayerActionMode.kAttack;
-
-                                if (PieceType == TypeOfPiece.Bomb || 
-                                    CurrentMove != null && CurrentMove.PieceAtPosition != null && CurrentMove.PieceAtPosition.PieceType == TypeOfPiece.Bomb)
-                                {
-                                    //Bomb Blows up!
-                                    GameRef.CompleteBombAttack();
-                                }
-                                else
-                                {
-                                    gameRef.ShowAttackMenu();
-                                }
+                                InitAttack();
                             }
                             else
                             {
@@ -228,11 +218,27 @@ namespace Assets.Scripts
             }
         }
 
+        /// <summary>
+        /// Initializes the Attack.  If piece to attack is a bomb, call that piece's init method
+        /// </summary>
+        protected virtual void InitAttack()
+        {
+            if (CurrentMove.PieceAtPosition != null && CurrentMove.PieceAtPosition.GetType() == typeof(Bomb))
+            {
+                //Bomb Blows up!
+                CurrentMove.PieceAtPosition.InitAttack();
+            }
+            else
+            {
+                gameRef.ShowAttackMenu();
+            }
+        }
+
         // ****************************************************
         // Public Methods
         // ****************************************************
         #region Piece Highlight Methods
-        
+
         public void SetHighlight(Move move, Color color)
         {
             var backgroundSquare = gameRef.GetBackgroundSquare(move.Coord);
@@ -294,6 +300,15 @@ namespace Assets.Scripts
         public Move GetAvailableMoveAtCoordinate(Structs.Coordinate currCoord)
         {
             return AvailableMoves.Find(x => (x.Coord.Equals(currCoord) == true) && ((x.PieceAtPosition == null) || (x.PieceAtPosition.IsOwnedByCurrentTurnPlayer() == false)));
+        }
+
+        /// <summary>
+        /// Returns the type the Piece can turn into.  Defaults to null
+        /// </summary>
+        /// <returns>Type to turn into</returns>
+        public virtual Type GetTransformType()
+        {
+            return null;
         }
 
         public void UpdateAvailableMoves()

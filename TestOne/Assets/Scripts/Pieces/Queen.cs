@@ -37,5 +37,5 @@ public class Queen : Piece {
         }
 
         return moves;
-    }
+    }    
 }

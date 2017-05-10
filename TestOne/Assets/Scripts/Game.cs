@@ -128,11 +128,13 @@ namespace Assets.Scripts
             //RollMenu.gameObject.SetActive(true);
             //MoveCountLabel = PreviewMenu.transform.Find("MoveCountLabel").GetComponent<Text>();
             
+            // Set start position to begin generating the board
             Vector3 startPos = new Vector3();
             startPos.x = -SquareWidth * 4;  //  half of the total width (4 squares)
             startPos.y = SquareHeight * 4;
             startPos.z = Consts.zPos_Piece;
                         
+            // Create the game board squares and add pieces
             for (int row = 0; row < Consts.rowCount; row++)
             {
                 GameSquares[row] = new GameSquare[Consts.colCount];
@@ -200,7 +202,7 @@ namespace Assets.Scripts
                 Dragging = false;
             }
 
-            GetDragDirectionFromSelectedPiece();
+            SetDragDirectionFromSelectedPiece();
             LastMousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             
             // Turned off preview menu 9-13-16
@@ -236,26 +238,47 @@ namespace Assets.Scripts
         // ****************************************************
         // Public Methods
         // ****************************************************
+        /// <summary>
+        /// Returns the GameSquare at the given coordinates.
+        /// </summary>
+        /// <param name="coord">Coordinate of piece to find.</param>
+        /// <returns></returns>
         public GameSquare GetGameSquare(Structs.Coordinate coord)
         {
             return GameSquares[coord.row][coord.col];
         }
 
+        /// <summary>
+        /// Returns the BackgroundSquare at the given coordinates.
+        /// </summary>
+        /// <param name="coord">Coordinate of piece to find.</param>
+        /// <returns></returns>
         public BackgroundSquare GetBackgroundSquare(Structs.Coordinate coord)
         {
             return BackgroundSquares[coord.row][coord.col];
         }
 
+        /// <summary>
+        /// Begins the Attack sequence
+        /// </summary>
         public void BeginAttack()
         {
             CurrentAttackPiece.GetComponent<AttackSquare>().DoubleClick();
         }
 
+        /// <summary>
+        /// Begins the Move sequence
+        /// </summary>
         public void BeginMove()
         {
             CurrentMovePiece.GetComponent<MovePiece>().DoubleClick();
         }
 
+        /// <summary>
+        /// Searches the square to see if it contains an Attack Square object
+        /// </summary>
+        /// <param name="square">GameObject to analyze.</param>
+        /// <returns></returns>
         public bool CheckForAttackSquare(GameObject square)
         {
             bool found = false;
@@ -271,6 +294,9 @@ namespace Assets.Scripts
             return found;
         }
 
+        /// <summary>
+        /// Clears all highlights on all Background Squares on the board.
+        /// </summary>
         public void ClearAllHighlights()
         {
             foreach (BackgroundSquare[] rowOfSquares in BackgroundSquares)
@@ -282,6 +308,9 @@ namespace Assets.Scripts
             }
         }
 
+        /// <summary>
+        /// Removes all preview, move and attack pieces from the board.
+        /// </summary>
         public void ClearAllMovePieces()
         {
             var previews = Board.GetComponentsInChildren<PreviewPiece>();
@@ -313,10 +342,12 @@ namespace Assets.Scripts
             }
         }
 
+        /// <summary>
+        /// Complete the Attack sequence.
+        /// </summary>
         public void CompleteAttack()
         {
             //** Check for Win/Loss
-            //if (BattleLoser.PieceType == Piece.TypeOfPiece.King)
             if(BattleLoser.GetType() == typeof(King))
             {
                 //Show Win Screen
@@ -329,7 +360,6 @@ namespace Assets.Scripts
             SwapTurns();
             BattleLoser.Active = false;
             BattleLoser.gameObject.SetActive(false);
-            //if (p.PieceType == Piece.TypeOfPiece.Bomb)
             if(p.GetType() == typeof(Bomb))
             {
                 p.Active = false;
@@ -341,11 +371,13 @@ namespace Assets.Scripts
             (AttackMenu.transform.Find("AttackPlayerTwoValue").gameObject).GetComponent<Text>().text = "0";
         }
 
+        /// <summary>
+        /// Complete the Bomb attack sequence.
+        /// </summary>
         public void CompleteBombAttack()
         {
             BattleLoser = SelectedPiece.CurrentMove.PieceAtPosition;
             //** Check for Win/Loss
-            //if (BattleLoser.PieceType == Piece.TypeOfPiece.King)
             if (BattleLoser.GetType() == typeof(King))
             {
                 //Show Win Screen
@@ -396,12 +428,14 @@ namespace Assets.Scripts
             AttackButton.gameObject.SetActive(false);
         }
 
-        public void GetDragDirectionFromLastPreviewMove()
+        /// <summary>
+        /// Determines the direction of player movement from the last Preview Move.
+        /// </summary>
+        public void SetDragDirectionFromLastPreviewMove()
         {
             if (SelectedPiece == null){ return; }
             if (SelectedPiece.PreviewMoves.Count <= 0) { return; }
-
-            //Move lastMove = SelectedPiece.PreviewMoves.Peek();
+            
             Move lastMove = SelectedPiece.PreviewMoves.ElementAt(SelectedPiece.PreviewMoves.Count - 2);
 
             Vector3 mousePos = GetGameSquare(lastMove.Coord).gameObject.transform.position;
@@ -425,7 +459,10 @@ namespace Assets.Scripts
             }
         }
 
-        public void GetDragDirectionFromSelectedPiece()
+        /// <summary>
+        /// Determines the direction of player movement from the Selected Piece.
+        /// </summary>
+        public void SetDragDirectionFromSelectedPiece()
         {
             if (SelectedPiece == null)
             {
@@ -550,7 +587,8 @@ namespace Assets.Scripts
                 {
                     GameSquare gameSquare = null;
                     //Check Direction - if away, add, if towards, remove
-                    if (RelativeDir == Move.RelativeDirection.AWAY && (!ActionPieceWasPlaced || SelectedPiece.PieceType == Piece.TypeOfPiece.Queen))
+                    if (RelativeDir == Move.RelativeDirection.AWAY && 
+                        (!ActionPieceWasPlaced || SelectedPiece.GetType() == typeof(Queen)))
                     {                        
                         SetMovePiece(GetGameSquare(SelectedPiece.PreviewMoves.Peek().Coord));
                     }
@@ -616,9 +654,12 @@ namespace Assets.Scripts
         /// </summary>
         public void HandleSingleTouch()
         {
-            ////Debug.Log(CurrentTouch.position);
+            //Debug.Log(CurrentTouch.position);
         }
 
+        /// <summary>
+        /// Hides Preview Menu.
+        /// </summary>
         public void HidePreviewMenu()
         {
             PreviewMenu.gameObject.SetActive(false);
@@ -684,7 +725,7 @@ namespace Assets.Scripts
             //** Remove the Current Move or Attack if they exist
             CurrentAttackPiece = null;//There is only ever one attack piece placed to remove it if it exists
             CurrentMovePiece = null;//Remove move piece and re-set if appropriate
-            if (SelectedPiece.PieceType == Piece.TypeOfPiece.Queen)
+            if (SelectedPiece.GetType() == typeof(Queen))
             {
                 int previewMoveCount = SelectedPiece.PreviewMoves.Count;
                 if (previewMoveCount > 0)
@@ -801,8 +842,10 @@ namespace Assets.Scripts
                 return;
             }
 
-            if (SelectedPiece.PieceType != Piece.TypeOfPiece.Queen)
+            if (SelectedPiece.GetType() == typeof(Queen))
+            {
                 SelectedPiece.MovesRemaining--;
+            }
 
             gameSquare.CanMoveTo = false;
 
@@ -911,7 +954,7 @@ namespace Assets.Scripts
         
         public void SetMovePiece(GameSquare currSquare)
         {
-            if (SelectedPiece.MovesRemaining > 0 || SelectedPiece.PieceType == Piece.TypeOfPiece.Queen)
+            if (SelectedPiece.MovesRemaining > 0 || SelectedPiece.GetType() == typeof(Queen))
             {                
                 //Reset direction
                 if (SelectedPiece.MovesRemaining == SelectedPiece.CurrentMoveCount)
@@ -937,7 +980,7 @@ namespace Assets.Scripts
                         PlaceAttackPiece(currSquare, availableMove);
                     }
                     else if (   !currSquare.ContainsPreviewPiece() && 
-                                (SelectedPiece.MovesRemaining == 1 || SelectedPiece.PieceType == Piece.TypeOfPiece.Queen) )
+                                (SelectedPiece.MovesRemaining == 1 || SelectedPiece.GetType() == typeof(Queen)) )
                     {
                         PlaceMovePiece(currSquare, availableMove);
                     }
@@ -958,7 +1001,7 @@ namespace Assets.Scripts
                     if (SelectedPiece.MovesRemaining > 0)
                     {
                         SelectedPiece.PreviewMoves.Push(availableMove);
-                        if(!ActionPieceWasPlaced || SelectedPiece.PieceType == Piece.TypeOfPiece.Queen)
+                        if(!ActionPieceWasPlaced || SelectedPiece.GetType() == typeof(Queen))
                             SelectedPiece.UpdateAvailableMoves();
                     }
                     else if (SelectedPiece.MovesRemaining == 0)
@@ -976,7 +1019,9 @@ namespace Assets.Scripts
             {
                 try
                 {
-                    if (SelectedPiece == null || SelectedPiece.CurrentMove == null || SelectedPiece.CurrentMove.PieceAtPosition == null) { return; }
+                    if (SelectedPiece == null || 
+                        SelectedPiece.CurrentMove == null || 
+                        SelectedPiece.CurrentMove.PieceAtPosition == null) { return; }
 
                     PreviewMenu.gameObject.SetActive(false);
 
@@ -993,12 +1038,12 @@ namespace Assets.Scripts
                     GameObject pOneLabel = AttackMenu.transform.Find("AttackPlayerOneLabel").gameObject;
                     if (pOneLabel != null)
                     {
-                        pOneLabel.GetComponent<Text>().text = (SelectedPiece.GetComponent<Piece>()).PieceType.ToString();
+                        pOneLabel.GetComponent<Text>().text = (SelectedPiece.GetComponent<Piece>()).GetType().ToString();
                     }
                     GameObject pTwoLabel = AttackMenu.transform.Find("AttackPlayerTwoLabel").gameObject;
                     if (pTwoLabel != null)
                     {
-                        pTwoLabel.GetComponent<Text>().text = (SelectedPiece.GetComponent<Piece>()).CurrentMove.PieceAtPosition.PieceType.ToString();
+                        pTwoLabel.GetComponent<Text>().text = (SelectedPiece.GetComponent<Piece>()).CurrentMove.PieceAtPosition.GetType().ToString();
                     }
 
                     var p1Image = AttackMenu.transform.Find("AttackPlayerOneImage");
@@ -1012,17 +1057,21 @@ namespace Assets.Scripts
                 catch (Exception)
                 {
                     Debug.Log("AttackMenu component was null");
-                    //throw;
                 }
             }
         }
 
+        /// <summary>
+        /// Displays the preview menu.  Not currently being used - TODO: Determine if we should just remove this code.
+        /// </summary>
+        /// <param name="piece">Piece to show preview for.</param>
+        /// <param name="position">Position to display preview.</param>
         public void ShowPreviewMenu(Piece piece, ScreenPosition position)
         {
             PreviewMenu.gameObject.SetActive(true);
 
             var txtPieceType = PreviewMenu.transform.Find("txtPieceType");
-            txtPieceType.GetComponent<Text>().text = piece.PieceType.ToString();
+            txtPieceType.GetComponent<Text>().text = piece.GetType().ToString();
 
             var txtAttackDice = PreviewMenu.transform.Find("txtAttackDiceMax");
             txtAttackDice.GetComponent<Text>().text = piece.AttackDice.DiceCollection.ElementAt(0).UpperLimit.ToString();
@@ -1046,7 +1095,7 @@ namespace Assets.Scripts
             playerSpriteRenderer.sprite = SelectedPiece.GetComponent<SpriteRenderer>().sprite;
 
             var bombButton = PreviewMenu.transform.Find("BombButton");
-            if (SelectedPiece.PieceType == Piece.TypeOfPiece.Drone)
+            if (SelectedPiece.GetType() == typeof(Drone))
             {
                 playerSpriteRenderer.gameObject.SetActive(false);
                 bombButton.gameObject.SetActive(true);
@@ -1066,6 +1115,9 @@ namespace Assets.Scripts
 
         }
 
+        /// <summary>
+        /// Switch turns.
+        /// </summary>
         public void SwapTurns()
         {
             SelectedPiece.Selected = false;
@@ -1102,12 +1154,26 @@ namespace Assets.Scripts
         }
 
         /// <summary>
-        /// Turns the current selected piece into a bomb if it is a drone
-        /// </summary>
-        public void TransformIntoBomb()
+        /// Turns the current selected piece into passed in type
+        /// </summary>         
+        public void TransformSelectedPieceIntoPiece()//TODO: finish implimentation
         {
             //Transform Piece
-            SelectedPiece = new Bomb();
+            //SelectedPiece = new Bomb();
+
+            //SelectedPiece = (T)Convert.ChangeType(SelectedPiece, typeof(T));
+            //var obj = (Activator.CreateInstance(pieceToTransformInto));
+            //SelectedPiece = obj as pieceToTransformInto;
+            Type toTransformInto = SelectedPiece.GetTransformType();
+            if (toTransformInto != null)
+            {
+                var obj = Activator.CreateInstance(toTransformInto);
+                Piece p = obj as Piece;
+
+                //TODO: Copy over values?
+                SelectedPiece = p;
+            }
+
             //Switch turns
             SwapTurns();
         }
@@ -1117,8 +1183,7 @@ namespace Assets.Scripts
             if (SelectedPiece == null) { return; }
             //MoveCountLabel.text = SelectedPiece.MovesRemaining < 0 ? "0" : SelectedPiece.MovesRemaining.ToString();
         }
-
-
+        
         // ****************************************************
         // Select Piece Methods
         // ****************************************************

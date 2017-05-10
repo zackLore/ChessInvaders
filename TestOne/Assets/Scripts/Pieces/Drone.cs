@@ -4,6 +4,7 @@ using UnityEngine;
 
 using Assets.Scripts;
 using System.Linq;
+using System;
 
 public class Drone : Piece {
 
@@ -37,5 +38,10 @@ public class Drone : Piece {
         }
 
         return moves;
+    }
+
+    public override Type GetTransformType()
+    {
+        return typeof(Bomb);
     }
 }
