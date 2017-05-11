@@ -1169,8 +1169,8 @@ namespace Assets.Scripts
             {
                 var obj = Activator.CreateInstance(toTransformInto);
                 Piece p = obj as Piece;
-
-                //TODO: Copy over values?
+                
+                p = SelectedPiece.Clone(p);
                 SelectedPiece = p;
             }
 

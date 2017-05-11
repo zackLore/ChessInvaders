@@ -718,5 +718,12 @@ namespace Assets.Scripts
                 RollMoveDice();
             }
         }
+
+
+        public Piece Clone(Piece p)
+        {
+            p = (Piece) this.MemberwiseClone();
+            return p;
+        }
     }
 }
