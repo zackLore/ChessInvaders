@@ -29,7 +29,9 @@ namespace Assets.Scripts
                 GameRef.SelectedPiece != null && 
                 GameRef.SelectedPiece.Moving) { return; }//Ignore clicks when piece is moving
             
-            if (Input.GetMouseButtonDown(0) || Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began && !EventSystem.current.IsPointerOverGameObject())//touch started Left Click Down
+            if (Input.GetMouseButtonDown(0) || Input.touchCount > 0 && 
+                Input.GetTouch(0).phase == TouchPhase.Began && 
+                !EventSystem.current.IsPointerOverGameObject())//touch started Left Click Down
             {
                 StartPressTime();
                 ClickCount++;

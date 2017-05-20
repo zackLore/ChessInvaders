@@ -17,6 +17,11 @@ public class MovePiece : BaseBehavior//TODO: Remove un-needed code, finish imple
         InitClickTimes();
     }
 
+    private void Update()
+    {
+        DetectClicks();
+    }
+
     public override void OnPointerEnter(PointerEventData eventData)
     {
     }

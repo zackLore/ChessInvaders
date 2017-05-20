@@ -89,7 +89,7 @@ namespace Assets.Scripts
             return new Move(    gameObject.transform.position, 
                                 Coord, 
                                 direction,
-                                piece);
+                                piece   );
         }
         
 
@@ -123,6 +123,9 @@ namespace Assets.Scripts
             {
                 // is this square a valid preview square for the currently selected piece?
                 GameRef.SetMovePiece(this);
+                // NEW
+                GameRef.HandleReminderPiece();
+                // TODO: Move Piece Here
             }
             else
             {
@@ -154,6 +157,7 @@ namespace Assets.Scripts
         public override void OnPointerUp(PointerEventData eventData)
         {
             GameRef.CurrentSquare = this.gameObject;
+            Debug.Log(this + " Clicked");
             DetectClicks();
         }
 

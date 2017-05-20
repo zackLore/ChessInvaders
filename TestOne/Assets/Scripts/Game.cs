@@ -86,6 +86,7 @@ namespace Assets.Scripts
         
         public bool Dragging = false;
         public bool ActionPieceWasPlaced = false;
+        public bool ReminderPiecePlaced = false;
         public PlayerActionMode CurrentPlayerActionMode = PlayerActionMode.kSelect;
 
         public string defaultBGColor = "DDE2E2FF";
@@ -229,7 +230,7 @@ namespace Assets.Scripts
             //    PreviewMenu.gameObject.SetActive(false);
             //}
 
-            if (Dragging && (CurrentPlayerActionMode != PlayerActionMode.kMove))
+            if (Dragging && (CurrentPlayerActionMode == PlayerActionMode.kMove))
             {
                 HandleMove();
             }
@@ -586,10 +587,19 @@ namespace Assets.Scripts
                 if (SelectedPiece.Dragging)
                 {
                     GameSquare gameSquare = null;
+
+                    // TODO: Complete New Functionality
+                    //***NEW MOVE FUNCTIONALITY***//
+
+                    HandleReminderPiece();
+                    //Move Piece to position of users cursor 
+
+                    //***************************//
+
                     //Check Direction - if away, add, if towards, remove
-                    if (RelativeDir == Move.RelativeDirection.AWAY && 
+                    if (RelativeDir == Move.RelativeDirection.AWAY &&
                         (!ActionPieceWasPlaced || SelectedPiece.GetType() == typeof(Queen)))
-                    {                        
+                    {
                         SetMovePiece(GetGameSquare(SelectedPiece.PreviewMoves.Peek().Coord));
                     }
                     else if (RelativeDir == Move.RelativeDirection.TOWARDS)
@@ -610,7 +620,7 @@ namespace Assets.Scripts
                                 float centerSize = HalfWidth / 2;
 
                                 if (Mathf.Abs(diff.x) < centerSize &&
-                                    Mathf.Abs(diff.y) < centerSize ) { return; }
+                                    Mathf.Abs(diff.y) < centerSize) { return; }
 
                                 try
                                 {
@@ -647,6 +657,31 @@ namespace Assets.Scripts
 
                 }
             }
+        }
+
+        public void HandleReminderPiece()
+        {
+            if (!ReminderPiecePlaced)
+            {
+                //Place New Reminder Piece if one has not been placed
+                Debug.Log("Placing Reminder Piece...");
+                PlaceReminderPiece();
+                ReminderPiecePlaced = true;
+                Debug.Log("Reminder Piece Placed.");
+            }
+        }
+
+        /// <summary>
+        /// Places a "reminder" piece at the current position of the selected Piece.
+        /// </summary>
+        public void PlaceReminderPiece()
+        {
+            GameObject reminderPiece = new GameObject();
+            SpriteRenderer sr = reminderPiece.AddComponent<SpriteRenderer>();
+            sr.sprite = SelectedPiece.gameObject.GetComponent<SpriteRenderer>().sprite;
+            Color c = sr.color;
+            sr.color = new Color(c.r, c.g, c.b, .25f);
+            reminderPiece.transform.position = SelectedPiece.transform.position;
         }
 
         /// <summary>
@@ -1218,8 +1253,7 @@ namespace Assets.Scripts
             SelectedPiece = null;
             Player_UI.UpdateUI(null);
         }
-
-
+        
         // ****************************************************
         // Private Methods
         // ****************************************************

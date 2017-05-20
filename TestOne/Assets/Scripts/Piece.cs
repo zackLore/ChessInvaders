@@ -29,6 +29,7 @@ namespace Assets.Scripts
         //public TypeOfPiece PieceType = TypeOfPiece.None;
 
         public bool Active = true;
+        public bool CanChangeDirection = false;
         public bool Dragging = false;
         public bool HasMoved = false;
         public bool Moving = false;
@@ -95,6 +96,7 @@ namespace Assets.Scripts
         }
         
         public List<Move> AvailableMoves = null;
+        public List<Move> CurrentAvailableMoves = null;
         public Stack<Move> PreviewMoves = null;
 
         //public Move CurrentMove = null;
@@ -108,6 +110,7 @@ namespace Assets.Scripts
         public Game gameRef = null;//reference to main game script
         public Move NextMove = null;
         public Move.Direction CurrentDirection = Move.Direction.NONE;
+        public List<Move.Direction> AvailableDirections;
 
         public TimeSpan HoverTime;
         public float HoverStart = 1.5f;
@@ -134,11 +137,13 @@ namespace Assets.Scripts
 
         public override void OnPointerUp(PointerEventData eventData)
         {
+            Dragging = false;
             DetectClicks(false);
         }
 
         public override void OnPointerDown(PointerEventData eventData)
         {
+            Dragging = true;
             //DetectClicks(false);
         }
 
@@ -146,12 +151,13 @@ namespace Assets.Scripts
         {
             GameRef.HidePreviewMenu();
             HoverTime = TimeSpan.FromSeconds(0);
+            Dragging = false;
             ClickCount = 0;
         }
 
         void Update()
         {
-
+            
         }
 
         void FixedUpdate()
@@ -234,6 +240,13 @@ namespace Assets.Scripts
             }
         }
 
+        /// <summary>
+        /// Populates the available direction array that determines how the piece can move.
+        /// </summary>
+        protected virtual void InitAvailableDirections()
+        {
+            AvailableDirections = new List<Move.Direction>();
+        }
         // ****************************************************
         // Public Methods
         // ****************************************************
@@ -303,7 +316,7 @@ namespace Assets.Scripts
         }
 
         /// <summary>
-        /// Returns the type the Piece can turn into.  Defaults to null
+        /// Returns the type the Piece can turn into.  Defaults to null -zl
         /// </summary>
         /// <returns>Type to turn into</returns>
         public virtual Type GetTransformType()
@@ -522,12 +535,30 @@ namespace Assets.Scripts
         {
             Structs.Coordinate newCoordinate = currCoordinate + Move.Offsets[(int)direction];
 
-            if (!newCoordinate.IsValid())
+            if (!newCoordinate.IsValid()) 
             {
                 return null;
             }
             
+            GameSquare square = GameRef.GetGameSquare(newCoordinate);
+            if (square.ContainsFriendlyPiece())
+            {
+                return null;
+            }
+
             return gameRef.GetGameSquare(newCoordinate).GetMoveToHere(direction);
+        }
+
+        /// <summary>
+        /// Gets all move combinations based on the direction array provided. -zl
+        /// </summary>
+        /// <param name="directionArray">array of available directions</param>
+        /// <returns>list of moves</returns>
+        protected List<Move> GetAllAvailableMovesByDirectionArray(Move.Direction[] directionArray)
+        {
+            List<Move> moves = new List<Move>();
+            //TODO: Continue-> get all moves possible from the start point to the end based on the current roll
+            return moves;
         }
 
         protected List<Move> GetAvailableMovesByDirectionArray(Move.Direction[] directionArray)
@@ -549,7 +580,25 @@ namespace Assets.Scripts
 
         protected virtual List<Move> GetAvailableMoves()
         {
-            return new List<Move>();
+            List<Move> moves = GetAvailableMovesByDirectionArray(AvailableDirections.ToArray());
+
+            return moves;
+        }
+
+        protected virtual List<Move> GetCurrentAvailableMoves()
+        {
+            List<Move> moves = new List<Move>();
+
+            if (!HasChangedDirection || CurrentDirection == Move.Direction.NONE)
+            {
+                moves = GetAvailableMovesByDirectionArray(AvailableDirections.ToArray());
+            }
+            else
+            {
+                moves = GetAvailableMovesByDirectionArray(AvailableDirections.ToArray()).Where(x => x.Dir == CurrentDirection).ToList();
+            }
+
+            return moves;
         }
 
         protected void HandlePieceSelectionSound()

@@ -18,24 +18,18 @@ public class Fighter : Piece {
         AttackLimit = 20;
         DefendLimit = 6;
         MoveLimit = 6;
+
         AttackDice.InitDice(1, 20);
         DefendDice.InitDice(1, 6);
         MoveDice.InitDice(1, 6);
+
+        CanChangeDirection = true;
+
+        InitAvailableDirections();
     }
 
-    protected override List<Move> GetAvailableMoves()
+    protected override void InitAvailableDirections()
     {
-        List<Move> moves = new List<Move>();
-
-        if (!HasChangedDirection || CurrentDirection == Move.Direction.NONE)
-        {
-            moves = GetAvailableMovesByDirectionArray(Move.Directions_All);
-        }
-        else
-        {
-            moves = GetAvailableMovesByDirectionArray(Move.Directions_All).Where(x => x.Dir == CurrentDirection).ToList();
-        }
-        
-        return moves;
+        AvailableDirections = new List<Move.Direction>(Move.Directions_All);        
     }
 }
